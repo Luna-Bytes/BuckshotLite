@@ -1,0 +1,74 @@
+import random
+from dataclasses import dataclass
+
+from classes.Player import Player
+from classes.Shell import Shell
+
+@dataclass
+class ShellCount:
+    live: int
+    blank: int
+
+
+class Shotgun:
+    def __init__(self):
+        self.loaded_shells: list[Shell] = []
+        self.shellTypes = ShellCount(0, 0)
+        self.remainingTypes = ShellCount(0, 0)
+        self.totalShells: int = 0
+        self.remainingShells: int = 0
+
+    def shot(self, player: Player, yourself: bool):
+        return
+
+    def next_shell(self):
+        # returns true if shell is Live else returns False
+        next_shell: Shell = self.loaded_shells.pop(0)
+        self.remainingShells -= 1
+        if next_shell.firstType:
+            self.remainingTypes.live -= 1
+        else:
+            self.remainingTypes.blank -= 1
+
+        if next_shell.isLive:
+            self.shellTypes.live -= 1
+            return True
+        else:
+            self.shellTypes.blank -= 1
+            return False
+
+    def invert_shell(self):
+        self.loaded_shells[0].invert()
+
+    def load_shells(self, lives: int, blanks: int):
+        total_count: int = lives + blanks
+        if total_count == 0 or lives < 1 or blanks < 1:
+            self.clear_shells()
+            return
+
+        self.shellTypes = ShellCount(lives, blanks)
+        self.remainingTypes = ShellCount(lives, blanks)
+        self.totalShells = total_count
+        self.remainingShells = total_count
+
+        shell_list: list[Shell] = [Shell(True) for _ in range(lives)] + [Shell(False) for _ in range(blanks)]
+        random.shuffle(shell_list)
+        self.loaded_shells = shell_list
+
+    def clear_shells(self):
+        self.loaded_shells = []
+        self.shellTypes = ShellCount(0, 0)
+        self.remainingTypes = ShellCount(0, 0)
+        self.totalShells = 0
+        self.remainingShells = 0
+
+    def __str__(self):
+        return (
+            f"Shotgun(\n"
+            f"  loaded_shells={str(self.loaded_shells)},\n"
+            f"  shellTypes={self.shellTypes},\n"
+            f"  remainingTypes={self.remainingTypes},\n"
+            f"  totalShells={self.totalShells},\n"
+            f"  remainingShells={self.remainingShells}\n"
+            f")"
+        )
