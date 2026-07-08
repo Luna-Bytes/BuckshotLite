@@ -1,8 +1,11 @@
+from __future__ import annotations
 import random
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
-from classes.Player import Player
 from classes.Shell import Shell
+if TYPE_CHECKING:
+    from classes.Player import Player
 
 @dataclass
 class ShellCount:
@@ -19,7 +22,12 @@ class Shotgun:
         self.remainingShells: int = 0
 
     def shot(self, player: Player, yourself: bool):
-        return
+        isLive: bool = self.next_shell()
+        if not(isLive):
+            return False
+        target: Player = player if yourself else player.otherPlayer
+        target.health -= 1
+        return True
 
     def next_shell(self):
         # returns true if shell is Live else returns False
@@ -54,6 +62,7 @@ class Shotgun:
         shell_list: list[Shell] = [Shell(True) for _ in range(lives)] + [Shell(False) for _ in range(blanks)]
         random.shuffle(shell_list)
         self.loaded_shells = shell_list
+        print(f"Loaded shells: {self.shellTypes.live} Lives and {self.shellTypes.blank} Blanks")
 
     def clear_shells(self):
         self.loaded_shells = []
