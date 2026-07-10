@@ -1,30 +1,55 @@
+from enum import Enum
+
 from classes.Player import Player
 from classes.Shotgun import Shotgun
+
+class GameState(Enum):
+    CONTINUE = 0
+    NEXT_ROUND = 1
+    GAME_OVER = 2
+    GAME_WON = 3
 
 players: list[Player] = []
 shotgun: Shotgun = Shotgun()
 currentPlayer: int = 0
+state: GameState = GameState.CONTINUE
+
 
 def main():
-    global players, shotgun, currentPlayer
+    global players, shotgun, currentPlayer, state
     init_players(True)
     init_round(2)
     shotgun.load_shells(1,2)
 
-    nobody_died = True
-    while(nobody_died):
+    while state == GameState.CONTINUE:
         print_info()
         do_turn()
         currentPlayer = (currentPlayer + 1) % len(players)
+        if state == GameState.NEXT_ROUND:
+            shotgun.load_shells(2,3)
+            state = GameState.CONTINUE
+
+def update_state():
+    global state, players, shotgun
+    for player in players:
+        if player.health == 0:
+            state = GameState.GAME_OVER
+            return
+    if shotgun.remainingShells == 0:
+        state = GameState.NEXT_ROUND
+        return
+    state = GameState.CONTINUE
+    return
 
 def print_info():
     for player in players:
         print(player.name + ": " + "⚡︎"*player.health)
 
 def do_turn():
+    global state
     def get_input():
         while True:
-            i = input("input y to shoot yourself and d to shoot the other player").strip().lower()
+            i = input("input y to shoot yourself and d to shoot the other player: ").strip().lower()
             if i == "y":
                 return True
             elif i == "d":
@@ -34,7 +59,7 @@ def do_turn():
     player = players[currentPlayer]
     print(player.name + "'s TURN:")
 
-    while still_going:
+    while still_going and state == GameState.CONTINUE:
         yourself: bool = get_input()
         shot = player.shot(shotgun, yourself)
 
@@ -46,7 +71,7 @@ def do_turn():
             print("You shot a live Shell at yourself")
         else:
             print("You shot a blank Shell at yourself")
-
+        update_state()
 
 def init_players(solo:bool):
     global players
