@@ -1,7 +1,9 @@
+import random
 from enum import Enum
 
 from classes.Player import Player
-from classes.Shotgun import Shotgun
+from classes.Shotgun import Shotgun, ShellCount
+
 
 class GameState(Enum):
     CONTINUE = 0
@@ -23,11 +25,19 @@ def main():
 
     while state == GameState.CONTINUE:
         print_info()
-        do_turn()
+        next_player()
         currentPlayer = (currentPlayer + 1) % len(players)
         if state == GameState.NEXT_ROUND:
             shotgun.load_shells(2,3)
             state = GameState.CONTINUE
+
+def next_player():
+    global players
+    player = players[currentPlayer]
+    if player.isAI:
+        ai_turn()
+    else:
+        do_turn()
 
 def update_state():
     global state, players, shotgun
@@ -44,6 +54,32 @@ def update_state():
 def print_info():
     for player in players:
         print(player.name + ": " + "⚡︎"*player.health)
+
+def ai_turn():
+    def chance(percent):
+        return random.random() < percent / 100
+    global players
+    player = players[currentPlayer]
+    keep_going = True
+
+    while state == GameState.CONTINUE and keep_going:
+        remaining_shells: int = shotgun.remainingShells
+        remaining_types: ShellCount = shotgun.remainingTypes
+
+        shot_self = False
+        if remaining_shells == shotgun.remainingTypes.live:
+            shot = player.shot(shotgun, shot_self=False)
+        elif remaining_shells == shotgun.remainingTypes.blank:
+            shot_self = True
+            shot = player.shot(shotgun, shot_self=True)
+        else:
+            shot_self = not chance((remaining_types.live / remaining_shells))
+            shot = player.shot(shotgun, shot_self=shot_self)
+
+        if not shot_self or shot:
+            keep_going = False
+        update_state()
+
 
 def do_turn():
     global state
@@ -93,8 +129,6 @@ def init_round(lives:int):
         player.health = lives
 
     print(f"Each player has {lives} lives")
-
-
 
 if __name__ == '__main__':
     main()

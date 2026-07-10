@@ -13,6 +13,7 @@ class Player:
         self.shells: list[Shell] = []
         self.health: int = 0
         self.otherPlayer: Optional[Player] = None
+        self.isAI: bool = False
 
     def __repr__(self):
         return (
@@ -40,6 +41,7 @@ class Player:
 
     def set_dealer(self):
         self.name = "DEALER"
+        self.isAI = True
 
     def shot(self, shotgun: Shotgun, shot_self:bool):
         return shotgun.shot(self, shot_self)
