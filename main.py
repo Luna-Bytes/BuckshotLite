@@ -71,10 +71,7 @@ def do_turn():
         action: Action = player.do_turn(shotgun.remainingShells, shotgun.remainingTypes)
 
         if type(action) is ShootAction:
-            if action.target == Target.SELF:
-                was_live = player.shot(shotgun, shot_self=True)
-            else:
-                was_live = player.shot(shotgun, shot_self=False)
+            was_live = player.shot(shotgun, True if action.target == Target.SELF else False)
 
             if action.target == Target.OTHER or was_live:
                 still_going = False
