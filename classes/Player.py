@@ -1,12 +1,15 @@
 from __future__ import annotations
+
+import random
 import re
 from typing import Optional, TYPE_CHECKING
 
+from classes.Enums import Action, ShootAction, Target
 from classes.Shell import Shell
 from classes.ItemManager import ItemManager
 
 if TYPE_CHECKING:
-    from classes.Shotgun import Shotgun
+    from classes.Shotgun import Shotgun, ShellCount
 
 
 class Player:
@@ -53,9 +56,38 @@ class Player:
         self.name = sanitize_name(name)
         return True
 
-    def set_dealer(self):
+    def shot(self, shotgun: Shotgun, shot_self:bool):
+        return shotgun.shot(self, shot_self)
+
+    def do_turn(self, remaining_shells: int, remaining_shell_types: ShellCount) -> Action:
+        pass
+
+class Human(Player):
+    def do_turn(self, remaining_shells: int, remaining_shell_types: ShellCount) -> Action:
+        def get_input():
+            while True:
+                i = input("input y to shoot yourself and d to shoot the other player: ").strip().lower()
+                if i == "y":
+                    return True
+                elif i == "d":
+                    return False
+
+        return ShootAction(target=Target.SELF if get_input() else Target.OTHER)
+
+class AI(Player):
+    def __init__(self):
+        super().__init__()
         self.name = "DEALER"
         self.isAI = True
 
-    def shot(self, shotgun: Shotgun, shot_self:bool):
-        return shotgun.shot(self, shot_self)
+    def do_turn(self, remaining_shells: int, remaining_shell_types: ShellCount) -> Action:
+        def chance(percent):
+            return random.random() < percent / 100
+
+        if remaining_shells == remaining_shell_types.live:
+            return ShootAction(target=Target.OTHER)
+        elif remaining_shells == remaining_shell_types.blank:
+            return ShootAction(target=Target.SELF)
+        else:
+            shot_self = not chance((remaining_shell_types.live / remaining_shells))
+            return ShootAction(target=Target.SELF if shot_self else Target.OTHER)

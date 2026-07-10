@@ -6,8 +6,6 @@ from classes.Shotgun import Shotgun
 if TYPE_CHECKING:
     from classes.Player import Player
 
-
-
 class ItemManager:
     def __init__(self):
         self.items: List[Item] = []

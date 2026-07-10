@@ -1,7 +1,5 @@
-import random
-
-from classes.Enums import GameState
-from classes.Player import Player
+from classes.Enums import GameState, Action, ShootAction, Target
+from classes.Player import Player, Human, AI
 from classes.RoundManager import RoundManager
 from classes.Shotgun import Shotgun, ShellCount
 
@@ -41,10 +39,7 @@ def next_player():
         print(player.name + "'s turn got skipped by handcuffs")
     else:
         player.skipped_last_turn = False
-        if player.isAI:
-            ai_turn()
-        else:
-            do_turn()
+        do_turn()
 
 def update_state():
     global state, players, shotgun
@@ -65,59 +60,26 @@ def print_info():
     for player in players:
         print(player.name + ": " + "⚡︎"*player.health)
 
-def ai_turn():
-    def chance(percent):
-        return random.random() < percent / 100
-    global players
-    player = players[currentPlayer]
-    keep_going = True
-
-    print(player.name + "'s TURN:")
-    while state == GameState.CONTINUE and keep_going:
-        remaining_shells: int = shotgun.remainingShells
-        remaining_types: ShellCount = shotgun.remainingTypes
-
-        shot_self = False
-        if remaining_shells == shotgun.remainingTypes.live:
-            shot = player.shot(shotgun, shot_self=False)
-        elif remaining_shells == shotgun.remainingTypes.blank:
-            shot_self = True
-            shot = player.shot(shotgun, shot_self=True)
-        else:
-            shot_self = not chance((remaining_types.live / remaining_shells))
-            shot = player.shot(shotgun, shot_self=shot_self)
-
-        if not shot_self or shot:
-            keep_going = False
-
-        print(player.name + " shot " + ("himself" if shot_self else "you") + " with a " + ("live" if shot else "blank") + " Shell")
-        update_state()
-
-
 def do_turn():
     global state
-    def get_input():
-        while True:
-            i = input("input y to shoot yourself and d to shoot the other player: ").strip().lower()
-            if i == "y":
-                return True
-            elif i == "d":
-                return False
 
     still_going: bool = True
     player = players[currentPlayer]
     print(player.name + "'s TURN:")
 
     while still_going and state == GameState.CONTINUE:
-        yourself: bool = get_input()
-        shot = player.shot(shotgun, yourself)
+        action: Action = player.do_turn(shotgun.remainingShells, shotgun.remainingTypes)
 
-        if not yourself:
-            still_going = False
-        elif shot:
-            still_going = False
+        if type(action) is ShootAction:
+            if action.target == Target.SELF:
+                was_live = player.shot(shotgun, shot_self=True)
+            else:
+                was_live = player.shot(shotgun, shot_self=False)
 
-        print("You shot a " + ("live" if shot else "blank") + " Shell at " + ("yourself" if yourself else "the Dealer"))
+            if action.target == Target.OTHER or was_live:
+                still_going = False
+
+            print(player.name + " shot a " + ("live" if was_live else "blank") + " Shell at " + ("themselves" if action.target == Target.SELF else player.otherPlayer.name))
         update_state()
 
 def init_players(solo:bool):
@@ -126,10 +88,9 @@ def init_players(solo:bool):
         while not player.set_name(input(f"Your name: ")):
             print("You can't choose that name")
 
-    players = [Player() for i in range(2)]
+    players = [Human(), AI()]
     if solo:
         ask_player_name(players[0])
-        players[1].set_dealer()
 
     players[0].set_other_player(players[1])
     players[1].set_other_player(players[0])
