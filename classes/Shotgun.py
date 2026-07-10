@@ -20,13 +20,15 @@ class Shotgun:
         self.remainingTypes = ShellCount(0, 0)
         self.totalShells: int = 0
         self.remainingShells: int = 0
+        self.doubleDamage: bool = False
 
     def shot(self, player: Player, yourself: bool):
         isLive: bool = self.next_shell()
         if not(isLive):
             return False
         target: Player = player if yourself else player.otherPlayer
-        target.health -= 1
+        target.health -= 1 + self.doubleDamage
+        self.doubleDamage = False
         return True
 
     def next_shell(self):
@@ -44,6 +46,9 @@ class Shotgun:
         else:
             self.shellTypes.blank -= 1
             return False
+
+    def double_damage(self):
+        self.doubleDamage = True
 
     def invert_shell(self):
         self.loaded_shells[0].invert()
@@ -70,6 +75,7 @@ class Shotgun:
         self.remainingTypes = ShellCount(0, 0)
         self.totalShells = 0
         self.remainingShells = 0
+        self.doubleDamage = False
 
     def __str__(self):
         return (

@@ -3,6 +3,8 @@ import re
 from typing import Optional, TYPE_CHECKING
 
 from classes.Shell import Shell
+from classes.ItemManager import ItemManager
+
 if TYPE_CHECKING:
     from classes.Shotgun import Shotgun
 
@@ -14,6 +16,10 @@ class Player:
         self.health: int = 0
         self.otherPlayer: Optional[Player] = None
         self.isAI: bool = False
+        self.max_health: int = 0
+        self.skip_next_turn: bool = False
+        self.skipped_last_turn: bool = False
+        self.items: ItemManager = ItemManager()
 
     def __repr__(self):
         return (
@@ -23,6 +29,14 @@ class Player:
             f"  otherPlayer={self.otherPlayer.name if self.otherPlayer else None},\n)"
             f")"
         )
+
+    def skip_turn(self):
+        self.skip_next_turn = True
+        self.skipped_last_turn = True
+
+    def last_live(self):
+        self.max_health = 1
+        self.health = 1
 
     def set_other_player(self, other_player: Player):
         self.otherPlayer = other_player

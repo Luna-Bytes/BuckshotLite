@@ -1,52 +1,62 @@
 import random
-from enum import Enum
 
+from classes.Enums import GameState
 from classes.Player import Player
+from classes.RoundManager import RoundManager
 from classes.Shotgun import Shotgun, ShellCount
-
-
-class GameState(Enum):
-    CONTINUE = 0
-    NEXT_ROUND = 1
-    GAME_OVER = 2
-    GAME_WON = 3
 
 players: list[Player] = []
 shotgun: Shotgun = Shotgun()
 currentPlayer: int = 0
 state: GameState = GameState.CONTINUE
+rounds: RoundManager = RoundManager()
 
 
 def main():
-    global players, shotgun, currentPlayer, state
+    global players, shotgun, currentPlayer, state, rounds
     init_players(True)
-    init_round(2)
-    shotgun.load_shells(1,2)
+
+    rounds.load_default_rounds()
+    init_round(rounds.current_round.lives)
+    rounds.load_next_shells(shotgun)
 
     while state == GameState.CONTINUE:
         print_info()
         next_player()
         currentPlayer = (currentPlayer + 1) % len(players)
         if state == GameState.NEXT_ROUND:
-            shotgun.load_shells(2,3)
+            state = rounds.next_round()
+            init_round(rounds.current_round.lives)
+            rounds.load_next_shells(shotgun)
+        if state == GameState.NEXT_SHELLS:
+            rounds.load_next_shells(shotgun)
             state = GameState.CONTINUE
 
 def next_player():
     global players
     player = players[currentPlayer]
-    if player.isAI:
-        ai_turn()
+
+    if player.skip_next_turn:
+        player.skip_next_turn = False
+        print(player.name + "'s turn got skipped by handcuffs")
     else:
-        do_turn()
+        player.skipped_last_turn = False
+        if player.isAI:
+            ai_turn()
+        else:
+            do_turn()
 
 def update_state():
     global state, players, shotgun
     for player in players:
         if player.health == 0:
-            state = GameState.GAME_OVER
+            if player.isAI:
+                state = GameState.NEXT_ROUND
+            else:
+                state = GameState.GAME_OVER
             return
     if shotgun.remainingShells == 0:
-        state = GameState.NEXT_ROUND
+        state = GameState.NEXT_SHELLS
         return
     state = GameState.CONTINUE
     return
@@ -125,9 +135,12 @@ def init_players(solo:bool):
     players[1].set_other_player(players[0])
 
 def init_round(lives:int):
-    global players
+    global players, currentPlayer
     for player in players:
         player.health = lives
+        player.max_health = lives
+        player.skip_next_turn = False
+    currentPlayer = 0
 
     print(f"Each player has {lives} lives")
 
