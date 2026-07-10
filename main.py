@@ -62,6 +62,7 @@ def ai_turn():
     player = players[currentPlayer]
     keep_going = True
 
+    print(player.name + "'s TURN:")
     while state == GameState.CONTINUE and keep_going:
         remaining_shells: int = shotgun.remainingShells
         remaining_types: ShellCount = shotgun.remainingTypes
@@ -78,6 +79,8 @@ def ai_turn():
 
         if not shot_self or shot:
             keep_going = False
+
+        print(player.name + " shot " + ("himself" if shot_self else "you") + " with a " + ("live" if shot else "blank") + " Shell")
         update_state()
 
 
@@ -101,18 +104,16 @@ def do_turn():
 
         if not yourself:
             still_going = False
-            print(f"You shot a {"live" if shot else "blank"} Shell at the Dealer")
         elif shot:
             still_going = False
-            print("You shot a live Shell at yourself")
-        else:
-            print("You shot a blank Shell at yourself")
+
+        print("You shot a " + ("live" if shot else "blank") + " Shell at " + ("yourself" if yourself else "the Dealer"))
         update_state()
 
 def init_players(solo:bool):
     global players
     def ask_player_name(player:Player):
-        while not player.set_name(input(f"Your name:")):
+        while not player.set_name(input(f"Your name: ")):
             print("You can't choose that name")
 
     players = [Player() for i in range(2)]
