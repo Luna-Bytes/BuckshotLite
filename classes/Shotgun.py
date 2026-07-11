@@ -24,7 +24,7 @@ class Shotgun:
 
     def shot(self, player: Player, yourself: bool):
         is_live: bool = self.next_shell()
-        if not(is_live):
+        if not is_live:
             return False
         target: Player = player if yourself else player.otherPlayer
         target.health -= 1 + self.doubleDamage

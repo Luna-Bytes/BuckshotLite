@@ -1,11 +1,11 @@
 import random
 from typing import Optional
 
-from classes.Enums import GameState, Action, ShootAction, Target, ItemUseAction
+from classes.Enums import GameState, Action, ShootAction, Target
 from classes.Item import Item, Saw, Cigarette, Handcuffs, MagnifyingGlass, Beer
 from classes.Player import Player, Human, AI
 from classes.RoundManager import RoundManager
-from classes.Shotgun import Shotgun, ShellCount
+from classes.Shotgun import Shotgun
 
 players: list[Player] = []
 shotgun: Shotgun = Shotgun()
@@ -78,7 +78,7 @@ def do_turn():
     print(player.name + "'s TURN:")
 
     while still_going and state == GameState.CONTINUE:
-        action: Action = player.do_turn(shotgun.remainingShells, shotgun.remainingTypes)
+        action: Action = player.do_turn(shotgun.remainingShells, shotgun.remainingTypes, player.items.get_items())
 
         if type(action) is ShootAction:
             was_live = player.shot(shotgun, True if action.target == Target.SELF else False)
@@ -108,7 +108,7 @@ def init_players(solo:bool):
     players[0].set_other_player(players[1])
     players[1].set_other_player(players[0])
 
-def init_round(lives:int, items: Optional[int] = 0):
+def init_round(lives:int, items: int = 0):
     def random_item():
         return available_items[random.randint(0, len(available_items) - 1)]
 

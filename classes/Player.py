@@ -2,9 +2,10 @@ from __future__ import annotations
 
 import random
 import re
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from classes.Enums import Action, ShootAction, Target, ItemUseAction
+from classes.Item import Item
 from classes.Shell import Shell
 from classes.ItemManager import ItemManager
 
@@ -17,7 +18,7 @@ class Player:
         self.name: str = ""
         self.shells: list[Shell] = []
         self.health: int = 0
-        self.otherPlayer: Optional[Player] = None
+        self.otherPlayer: Player = None
         self.isAI: bool = False
         self.max_health: int = 0
         self.skip_next_turn: bool = False
@@ -59,11 +60,11 @@ class Player:
     def shot(self, shotgun: Shotgun, shot_self:bool):
         return shotgun.shot(self, shot_self)
 
-    def do_turn(self, remaining_shells: int, remaining_shell_types: ShellCount) -> Action:
+    def do_turn(self, remaining_shells: int, remaining_shell_types: ShellCount, available_items: list[Item]) -> Action:
         pass
 
 class Human(Player):
-    def do_turn(self, remaining_shells: int, remaining_shell_types: ShellCount) -> Action:
+    def do_turn(self, remaining_shells: int, remaining_shell_types: ShellCount, available_items: list[Item]) -> Action:
         def get_input() -> Action:
             while True:
                 i = input("type:\ny to shoot yourself \nd to shoot the other player\nu to use an item\n").strip().lower()
@@ -78,7 +79,6 @@ class Human(Player):
 
         def choose_item() -> ItemUseAction | None:
             while True:
-                available_items = self.items.get_items()
                 print("available items:")
                 for i, item in enumerate(available_items):
                     print(f"{i}: {item.name}")
@@ -97,7 +97,7 @@ class AI(Player):
         self.name = "DEALER"
         self.isAI = True
 
-    def do_turn(self, remaining_shells: int, remaining_shell_types: ShellCount) -> Action:
+    def do_turn(self, remaining_shells: int, remaining_shell_types: ShellCount, available_items: list[Item]) -> Action:
         def chance(percent):
             return random.random() < percent / 100
 

@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Optional, TYPE_CHECKING
+from typing import Optional
 
 from classes.Shotgun import ShellCount, Shotgun
 from classes.Enums import GameState
