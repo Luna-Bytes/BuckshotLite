@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum, auto
-from typing import Union
+from typing import Union, Optional
 
 from classes.Item import Item
 
@@ -26,7 +26,7 @@ class ShootAction:
 @dataclass(frozen=True)
 class ItemUseAction:
     item: Item
-    target: Target  # some items also need a target (self/dealer)
+    target: Optional[Target]  # some items also need a target (self/dealer)
 
 
 Action = Union[ShootAction, ItemUseAction]

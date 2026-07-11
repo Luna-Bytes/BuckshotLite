@@ -4,7 +4,7 @@ import random
 import re
 from typing import Optional, TYPE_CHECKING
 
-from classes.Enums import Action, ShootAction, Target
+from classes.Enums import Action, ShootAction, Target, ItemUseAction
 from classes.Shell import Shell
 from classes.ItemManager import ItemManager
 
@@ -64,15 +64,32 @@ class Player:
 
 class Human(Player):
     def do_turn(self, remaining_shells: int, remaining_shell_types: ShellCount) -> Action:
-        def get_input():
+        def get_input() -> Action:
             while True:
-                i = input("input y to shoot yourself and d to shoot the other player: ").strip().lower()
+                i = input("type:\ny to shoot yourself \nd to shoot the other player\nu to use an item\n").strip().lower()
                 if i == "y":
-                    return True
+                    return ShootAction(target=Target.SELF)
                 elif i == "d":
-                    return False
+                    return ShootAction(target=Target.OTHER)
+                elif i == "u":
+                    result = choose_item()
+                    if result is not None:
+                        return result
 
-        return ShootAction(target=Target.SELF if get_input() else Target.OTHER)
+        def choose_item() -> ItemUseAction | None:
+            while True:
+                available_items = self.items.get_items()
+                print("available items:")
+                for i, item in enumerate(available_items):
+                    print(f"{i}: {item.name}")
+                print("or input x to return")
+
+                item_input = input("choose a number: ").strip()
+                if item_input.isnumeric() and int(item_input) <= len(available_items) != 0:
+                    return ItemUseAction(self.items.items[int(item_input)], None)
+                return None
+
+        return get_input()
 
 class AI(Player):
     def __init__(self):

@@ -1,4 +1,8 @@
-from classes.Enums import GameState, Action, ShootAction, Target
+import random
+from typing import Optional
+
+from classes.Enums import GameState, Action, ShootAction, Target, ItemUseAction
+from classes.Item import Item, Saw, Cigarette, Handcuffs, MagnifyingGlass, Beer
 from classes.Player import Player, Human, AI
 from classes.RoundManager import RoundManager
 from classes.Shotgun import Shotgun, ShellCount
@@ -24,7 +28,7 @@ def main():
         currentPlayer = (currentPlayer + 1) % len(players)
         if state == GameState.NEXT_ROUND:
             state = rounds.next_round()
-            init_round(rounds.current_round.lives)
+            init_round(rounds.current_round.lives, items=rounds.current_round.items)
             rounds.load_next_shells(shotgun)
         if state == GameState.NEXT_SHELLS:
             rounds.load_next_shells(shotgun)
@@ -61,6 +65,12 @@ def print_info():
         print(player.name + ": " + "⚡︎"*player.health)
 
 def do_turn():
+    def use_item(_item: Item, _target: Optional[Target]):
+        for index, iitem in enumerate(player.items.get_items()):
+            if _item == iitem:
+                player.items.use_item(index, player, shotgun)
+
+
     global state
 
     still_going: bool = True
@@ -77,6 +87,12 @@ def do_turn():
                 still_going = False
 
             print(player.name + " shot a " + ("live" if was_live else "blank") + " Shell at " + ("themselves" if action.target == Target.SELF else player.otherPlayer.name))
+        else:
+            item = action.item
+            target = action.target
+            use_item(item, target)
+
+
         update_state()
 
 def init_players(solo:bool):
@@ -92,12 +108,18 @@ def init_players(solo:bool):
     players[0].set_other_player(players[1])
     players[1].set_other_player(players[0])
 
-def init_round(lives:int):
+def init_round(lives:int, items: Optional[int] = 0):
+    def random_item():
+        return available_items[random.randint(0, len(available_items) - 1)]
+
+    available_items: list[Item] = [Saw(), Cigarette(), Handcuffs(), MagnifyingGlass(), Beer()]
     global players, currentPlayer
     for player in players:
         player.health = lives
         player.max_health = lives
         player.skip_next_turn = False
+        for i in range(items):
+            player.items.add_item(random_item())
     currentPlayer = 0
 
     print(f"Each player has {lives} lives")
