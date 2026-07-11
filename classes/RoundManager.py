@@ -16,7 +16,7 @@ class RoundManager:
         self.loadedRounds: list[Round] = []
         self.round_count: int = 0
         self.current_round: Round = None
-        self.round_index: int = 0
+        self.round_index: int = None
 
     def load_default_rounds(self):
         self.loadedRounds = [
@@ -58,7 +58,6 @@ class RoundManager:
             ),
         ]
         self.round_count = len(self.loadedRounds)
-        self.current_round = self.loadedRounds[0]
 
     def load_next_shells(self, shotgun: Shotgun):
         if self.current_round.fixed_loaded_shells is not None:
@@ -66,7 +65,11 @@ class RoundManager:
             shotgun.load_shells(next_shells.live, next_shells.blank)
 
     def next_round(self) -> GameState:
-        self.round_index += 1
+        if self.round_index is None:
+            self.round_index = 0
+        else:
+            self.round_index += 1
+
         if self.round_index > self.round_count:
             return GameState.GAME_WON
 
