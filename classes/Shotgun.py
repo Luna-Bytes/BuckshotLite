@@ -23,12 +23,18 @@ class Shotgun:
         self.doubleDamage: bool = False
 
     def shot(self, player: Player, yourself: bool):
-        isLive: bool = self.next_shell()
-        if not(isLive):
+        is_live: bool = self.next_shell()
+        if not(is_live):
             return False
         target: Player = player if yourself else player.otherPlayer
         target.health -= 1 + self.doubleDamage
         self.doubleDamage = False
+        return True
+
+    def eject_shell(self):
+        is_live: bool = self.next_shell()
+        if not is_live:
+            return False
         return True
 
     def next_shell(self):

@@ -42,7 +42,7 @@ class Handcuffs(Item):
         if player.otherPlayer is not None:
             player.otherPlayer.skip_turn()
 
-class MagnifyingGlass:
+class MagnifyingGlass(Item):
     def __init__(self):
         super().__init__()
         self.name: str = "Magnifying Glass"
@@ -50,3 +50,13 @@ class MagnifyingGlass:
 
     def use(self, player: Player, shotgun: Shotgun):
         print("Current Shell is " + ("live" if shotgun.loaded_shells[0].isLive else "blank"))
+
+class Beer(Item):
+    def __init__(self):
+        super().__init__()
+        self.name: str = "Beer"
+        self.icon: str = ""
+
+    def use(self, player: Player, shotgun: Shotgun):
+        was_live = shotgun.eject_shell()
+        print("Ejected a " + ("live" if was_live else "blank") + " Shell")
