@@ -86,7 +86,7 @@ class Human(Player):
 
                 item_input = input("choose a number: ").strip()
                 if item_input.isnumeric() and int(item_input) <= len(available_items) != 0:
-                    return ItemUseAction(self.items.items[int(item_input)], None)
+                    return ItemUseAction(self.items.items[int(item_input)].type, None)
                 return None
 
         return get_input()

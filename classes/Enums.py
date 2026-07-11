@@ -2,9 +2,6 @@ from dataclasses import dataclass
 from enum import Enum, auto
 from typing import Union, Optional
 
-from classes.Item import Item
-
-
 class GameState(Enum):
     CONTINUE = auto()
     NEXT_ROUND = auto()
@@ -25,8 +22,15 @@ class ShootAction:
 
 @dataclass(frozen=True)
 class ItemUseAction:
-    item: Item
+    item: ItemType
     target: Optional[Target]  # some items also need a target (self/dealer)
 
 
 Action = Union[ShootAction, ItemUseAction]
+
+class ItemType(Enum):
+    SAW = auto(),
+    CIGARETTE = auto(),
+    HANDCUFFS = auto(),
+    MAGNIFYING_GLASS = auto(),
+    BEER = auto(),

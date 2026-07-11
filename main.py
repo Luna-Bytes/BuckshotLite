@@ -1,7 +1,7 @@
 import random
 from typing import Optional
 
-from classes.Enums import GameState, Action, ShootAction, Target
+from classes.Enums import GameState, Action, ShootAction, Target, ItemType
 from classes.Item import Item, Saw, Cigarette, Handcuffs, MagnifyingGlass, Beer
 from classes.Player import Player, Human, AI
 from classes.RoundManager import RoundManager
@@ -33,6 +33,7 @@ def main():
         if state == GameState.NEXT_SHELLS:
             rounds.load_next_shells(shotgun)
             state = GameState.CONTINUE
+            currentPlayer = 0
 
 def next_player():
     global players
@@ -65,9 +66,9 @@ def print_info():
         print(player.name + ": " + "⚡︎"*player.health)
 
 def do_turn():
-    def use_item(_item: Item, _target: Optional[Target]):
+    def use_item(_item: ItemType, _target: Optional[Target]):
         for index, iitem in enumerate(player.items.get_items()):
-            if _item == iitem:
+            if _item == iitem.type:
                 player.items.use_item(index, player, shotgun)
 
 
