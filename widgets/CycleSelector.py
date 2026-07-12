@@ -12,7 +12,6 @@ T = TypeVar("T")
 
 
 class CycleSelector(Generic[T], Widget, can_focus=True):
-    """A '< value >' widget you cycle through with left/right."""
 
     DEFAULT_CSS = """
     CycleSelector {

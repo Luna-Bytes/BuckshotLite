@@ -8,7 +8,6 @@ from textual.message import Message
 
 
 class Confirm(Widget, can_focus=True):
-    """A Cancel/Confirm row, navigable with left/right, selected with enter."""
 
     DEFAULT_CSS = """
     Confirm {
