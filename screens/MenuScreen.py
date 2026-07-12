@@ -6,8 +6,6 @@ from textual.binding import Binding
 from textual.reactive import reactive
 
 
-# One single block so nothing can overlap or wrap independently.
-
 TITLE_ART = r"""
 ██████╗ ██╗   ██╗ ██████╗██╗  ██╗███████╗██╗  ██╗ ██████╗ ████████╗
 ██╔══██╗██║   ██║██╔════╝██║ ██╔╝██╔════╝██║  ██║██╔═══██╗╚══██╔══╝
@@ -143,3 +141,5 @@ class MenuScreen(Screen):
             self.app.exit()
         elif choice == "SETTINGS":
             self.app.switch_mode("settings")
+        elif choice == "START":
+            self.app.switch_mode("new_game")

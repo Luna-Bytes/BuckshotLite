@@ -5,6 +5,8 @@ from textual.theme import Theme
 
 from screens.MenuScreen import MenuScreen
 from screens.SettingsScreen import SettingsScreen
+from screens.NewGameScreen import NewGameScreen
+
 from classes.GameManager import GameManager
 from classes.Player import Player, Human, AI
 
@@ -58,6 +60,7 @@ class BuckshotTUI(App):
     MODES = {
         "home": MenuScreen,
         "settings": SettingsScreen,
+        "new_game": NewGameScreen,
     }
     DEFAULT_MODE = "home"
 
