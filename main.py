@@ -59,8 +59,6 @@ class BuckshotTUI(App):
 
     MODES = {
         "home": MenuScreen,
-        "settings": SettingsScreen,
-        "new_game": NewGameScreen,
     }
     DEFAULT_MODE = "home"
 

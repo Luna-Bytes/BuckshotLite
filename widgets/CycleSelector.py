@@ -1,6 +1,7 @@
 from __future__ import annotations
 from typing import Generic, TypeVar, Sequence
 
+from rich.text import Text
 from textual.widget import Widget
 from textual.reactive import reactive
 from textual.binding import Binding
@@ -10,17 +11,14 @@ from textual.message import Message
 T = TypeVar("T")
 
 
-class CycleSelector(Widget, Generic[T], can_focus=True): # type: ignore[misc]
+class CycleSelector(Generic[T], Widget, can_focus=True):
     """A '< value >' widget you cycle through with left/right."""
 
     DEFAULT_CSS = """
     CycleSelector {
         width: auto;
-        height: 1;
+        height: auto;
         padding: 0 1;
-    }
-    CycleSelector:focus {
-        text-style: bold reverse;
     }
     """
 
@@ -29,7 +27,7 @@ class CycleSelector(Widget, Generic[T], can_focus=True): # type: ignore[misc]
         Binding("right", "next", "Next"),
     ]
 
-    index = reactive(0)
+    index = reactive(0, layout=True)
 
     class Changed(Message):
         def __init__(self, selector: "CycleSelector", value: T) -> None:
@@ -56,9 +54,14 @@ class CycleSelector(Widget, Generic[T], can_focus=True): # type: ignore[misc]
     def value(self) -> T:
         return self.options[self.index]
 
-    def render(self) -> str:
-        text = f"< {self.options[self.index]} >"
-        return f"{self.label}: {text}" if self.label else text
+    def render(self) -> Text:
+        value_text = Text(f"{self.options[self.index]}")
+        if self.has_focus:
+            value_text.stylize("bold reverse")
+
+        if self.label:
+            return Text(f"{self.label}: < ") + value_text + Text(" >")
+        return value_text
 
     def action_prev(self) -> None:
         self.index = (self.index - 1) % len(self.options)
@@ -68,3 +71,9 @@ class CycleSelector(Widget, Generic[T], can_focus=True): # type: ignore[misc]
 
     def watch_index(self) -> None:
         self.post_message(self.Changed(self, self.value))
+
+    def on_focus(self) -> None:
+        self.refresh()
+
+    def on_blur(self) -> None:
+        self.refresh()

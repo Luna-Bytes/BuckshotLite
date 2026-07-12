@@ -5,6 +5,8 @@ from textual.widgets import Static, Footer
 from textual.binding import Binding
 from textual.reactive import reactive
 
+from screens.SettingsScreen import SettingsScreen
+from screens.NewGameScreen import NewGameScreen
 
 TITLE_ART = r"""
 ██████╗ ██╗   ██╗ ██████╗██╗  ██╗███████╗██╗  ██╗ ██████╗ ████████╗
@@ -140,6 +142,6 @@ class MenuScreen(Screen):
         if choice == "EXIT":
             self.app.exit()
         elif choice == "SETTINGS":
-            self.app.switch_mode("settings")
+            self.app.push_screen(SettingsScreen())
         elif choice == "START":
-            self.app.switch_mode("new_game")
+            self.app.push_screen(NewGameScreen())
