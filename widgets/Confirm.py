@@ -12,7 +12,7 @@ class Confirm(Widget, can_focus=True):
     DEFAULT_CSS = """
     Confirm {
         width: 100%;
-        height: auto;
+        height: 3;
         content-align: center middle;
         padding: 1;
     }
@@ -50,6 +50,9 @@ class Confirm(Widget, can_focus=True):
         self.cancel_label = cancel_label
         self.confirm_label = confirm_label
         self.index = initial
+
+    def _on_mount(self) -> None:
+        self.styles.min_width = len(self.cancel_label) + len(self.confirm_label) + 5
 
     def render(self) -> Text:
         confirm_text = Text(self.confirm_label)

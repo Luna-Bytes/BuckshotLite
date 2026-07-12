@@ -7,6 +7,7 @@ from textual.reactive import reactive
 
 from screens.SettingsScreen import SettingsScreen
 from screens.NewGameScreen import NewGameScreen
+from widgets.ConfirmModal import ConfirmModal
 
 TITLE_ART = r"""
 ██████╗ ██╗   ██╗ ██████╗██╗  ██╗███████╗██╗  ██╗ ██████╗ ████████╗
@@ -140,8 +141,12 @@ class MenuScreen(Screen):
     def action_select(self) -> None:
         choice = self.OPTIONS[self.index]
         if choice == "EXIT":
-            self.app.exit()
+            self.app.push_screen(ConfirmModal(text="Are you sure you want to quit?"), self.on_confirm_exit)
         elif choice == "SETTINGS":
             self.app.push_screen(SettingsScreen())
         elif choice == "START":
             self.app.push_screen(NewGameScreen())
+
+    def on_confirm_exit(self, confirmed: bool) -> None:
+        if confirmed:
+            self.app.exit()
