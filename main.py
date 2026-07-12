@@ -4,7 +4,7 @@ from textual.reactive import reactive
 from textual.theme import Theme
 
 from screens.MenuScreen import MenuScreen
-from screens.test import SettingsScreen
+from screens.SettingsScreen import SettingsScreen
 from classes.GameManager import GameManager
 from classes.Player import Player, Human, AI
 
