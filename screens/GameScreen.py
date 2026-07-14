@@ -2,11 +2,13 @@ import random
 
 from textual.app import ComposeResult
 from textual.binding import Binding
+from textual.containers import Center, Middle
 from textual.screen import Screen
 from textual.widgets import Static, Footer
 
 from classes.Enums import Game
 from widgets.ConfirmModal import ConfirmModal
+from widgets.GameHealth import GameHealth
 
 
 class GameScreen(Screen):
@@ -66,7 +68,9 @@ would not be able to dream of heaven?
         self.game_setup: Game = None
 
     def compose(self) -> ComposeResult:
-        yield Static("This will someday become the Game Screen")
+        with Center():
+            with Middle():
+                yield GameHealth(health=[("AUTUMN", 3), ("DEALER", 3)])
         yield Footer()
 
     def on_mount(self) -> None:
