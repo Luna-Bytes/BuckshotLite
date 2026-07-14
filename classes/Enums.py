@@ -46,3 +46,10 @@ class GameMode(Enum):
 @dataclass(frozen=True)
 class NewRound:
     lives: int
+
+class GameEnd(Enum):
+    GAME_LOST = auto()
+    GAME_WON = auto()
+    DOUBLE_OR_NOTHING = auto()
+
+TurnEvents = Union[GameEnd, NewRound]

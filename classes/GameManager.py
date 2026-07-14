@@ -1,7 +1,7 @@
 import random
 from typing import Optional
 
-from classes.Enums import GameState, ItemType, Target, Action, ShootAction, Game, GameMode
+from classes.Enums import GameState, ItemType, Target, Action, ShootAction, Game, GameMode, TurnEvents
 from classes.Item import Item, Saw, Cigarette, Handcuffs, MagnifyingGlass, Beer
 from classes.Player import Player, Human, AI
 from classes.RoundManager import RoundManager
@@ -19,10 +19,14 @@ class GameManager:
 
     def setup(self, setup:Game):
         self.endless = setup.mode == GameMode.ENDLESS
+        if not self.endless:
+            self.rounds.load_default_rounds()
         self.players = [Human(), AI()]
         self.players[0].name = setup.name.upper()[:6]
         self.players[0].set_other_player(self.players[1])
         self.players[1].set_other_player(self.players[0])
+
+        self.next_round()
 
 
     def next_round(self):
@@ -66,9 +70,18 @@ class GameManager:
             if self.state == GameState.NEXT_SHELLS:
                 self.next_loadout()
 
+    def turn_events(self) -> list[TurnEvents]:
+        pass
+
     def print_info(self):
         for player in self.players:
             print(player.name + ": " + "⚡︎" * player.health)
+
+    def get_health(self) -> list[tuple[str, int]]:
+        result: list[tuple[str, int]] = []
+        for player in self.players:
+            result.append((player.name, player.health))
+        return result
 
     def do_turn(self):
         def use_item(_item: ItemType):
