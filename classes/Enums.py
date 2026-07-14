@@ -47,12 +47,18 @@ class GameMode(Enum):
 class NewRound:
     lives: int
 
+@dataclass(frozen=True)
+class NewShells:
+    lives: int
+    blankes: int
+    total: int
+
 class GameEnd(Enum):
     GAME_LOST = auto()
     GAME_WON = auto()
     DOUBLE_OR_NOTHING = auto()
 
-TurnEvents = Union[GameEnd, NewRound]
+TurnEvents = Union[GameEnd, NewRound, NewShells]
 
 @dataclass
 class ItemCount:
