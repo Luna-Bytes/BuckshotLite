@@ -1,4 +1,5 @@
 from textual.app import ComposeResult
+from textual.binding import Binding
 from textual.containers import Center, Middle, Vertical
 from textual.screen import ModalScreen
 from textual.widgets import Static
@@ -32,6 +33,10 @@ class ConfirmModal(ModalScreen[bool]):
     }
     """
 
+    BINDINGS = [
+        Binding("escape", "escape", "Dismiss", show=False),
+    ]
+
     def __init__(
             self,
             *,
@@ -63,3 +68,9 @@ class ConfirmModal(ModalScreen[bool]):
 
     def on_confirm_cancelled(self, event: Confirm.Cancelled) -> None:
         self.dismiss(False)
+
+    def action_escape(self) -> None:
+        if self.only_acknowledge:
+            self.dismiss(True)
+        else:
+            self.dismiss(False)
