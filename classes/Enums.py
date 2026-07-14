@@ -13,6 +13,7 @@ class GameState(Enum):
 class Target(Enum):
     SELF = auto()
     OTHER = auto()
+    NONE = auto()
 
 
 @dataclass(frozen=True)

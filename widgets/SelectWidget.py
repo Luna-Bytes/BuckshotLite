@@ -70,7 +70,7 @@ class SelectWidget(Widget, can_focus=True):
 
     def on_mount(self) -> None:
         self.styles.min_width = max([len(option) for option in self.options])
-        self.styles.min_height = len(self.options) + 2
+        self.styles.min_height = len(self.options)
 
     def render(self):
         max_width = self.width

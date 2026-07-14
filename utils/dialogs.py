@@ -1,4 +1,5 @@
 from widgets.ConfirmModal import ConfirmModal
+from typing import TypeVar
 
 
 async def confirm_dialog(
@@ -19,3 +20,10 @@ async def confirm_dialog(
         )
     )
     return result
+
+
+T = TypeVar("T")
+
+async def modal_wait(app, modal: ModalScreen[T]) -> T:
+    """Push a modal and await its result."""
+    return await app.push_screen_wait(modal)

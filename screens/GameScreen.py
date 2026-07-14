@@ -1,13 +1,16 @@
 import random
 
+from textual import work
 from textual.app import ComposeResult
 from textual.binding import Binding
 from textual.containers import Center, Middle
 from textual.screen import Screen
-from textual.widgets import Static, Footer
+from textual.widgets import Footer
 
-from classes.Enums import Game, ItemCount, ItemType
-from widgets.Confirm import Confirm
+from classes.Enums import Game, ItemCount, ItemType, Target
+from utils.dialogs import modal_wait
+from widgets.PlayerSelectModal import PlayerSelectModal
+from widgets.SelectWidget import SelectWidget
 from widgets.ConfirmModal import ConfirmModal
 from widgets.GameHealth import GameHealth
 from widgets.ItemWidget import ItemWidget
@@ -62,7 +65,8 @@ would not be able to dream of heaven?
     ominous_texts = [ominous_text_1, ominous_text_2, ominous_text_3]
 
     BINDINGS = [
-        Binding("r", "reset", "Reset")
+        Binding("r", "reset", "Reset"),
+        Binding("x", "shoot", "Shoot"),
     ]
 
     tmp_item_count: list[ItemCount] = [
@@ -102,8 +106,15 @@ would not be able to dream of heaven?
             with Middle():
                 yield GameHealth(health=[("AUTUMN", 3), ("DEALER", 3)])
                 yield ItemWidget(items=self.tmp_item_count, player_name="AUTUMN")
-                yield Confirm()
+                yield SelectWidget(options=["SELF", "DEALER"])
         yield Footer()
+
+    def action_shoot(self) -> None:
+        self.target_select()
+
+    @work(exclusive=True)
+    async def target_select(self) -> None:
+        await modal_wait(self.app, PlayerSelectModal())
 
     def on_mount(self) -> None:
         def get_random_text():
