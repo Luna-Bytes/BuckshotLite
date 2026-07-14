@@ -26,11 +26,9 @@ class SimpleButton(Widget, can_focus=True):
             self,
             *,
             label: str,
-            name: str | None = None,
-            id: str | None = None,
-            classes: str | None = None,
+            **kwargs
     ) -> None:
-        super().__init__(name=name,id=id,classes=classes)
+        super().__init__(**kwargs)
         self.label = label
 
     def on_mount(self) -> None:

@@ -15,11 +15,9 @@ class GameHealth(Vertical):
             self,
             *,
             health: list[tuple[str, int]],
-            name: str | None = None,
-            id: str | None = None,
-            classes: str | None = None,
+            **kwargs
     ) -> None:
-        super().__init__(name=name, id=id, classes=classes)
+        super().__init__(**kwargs)
         self.health = health
 
     def compose(self) -> ComposeResult:

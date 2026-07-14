@@ -31,11 +31,9 @@ class SimpleInput(Widget, can_focus=True):
         mark_label: bool = True,
         force_upper: bool = False,
         max_chars: int | None = None,
-        name: str | None = None,
-        id: str | None = None,
-        classes: str | None = None,
+        **kwargs
     ) -> None:
-        super().__init__(name=name, id=id, classes=classes)
+        super().__init__(**kwargs)
         self.label = label
         self.max_chars = max_chars
         self.mark_label = mark_label

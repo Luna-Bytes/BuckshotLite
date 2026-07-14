@@ -44,11 +44,9 @@ class ConfirmModal(ModalScreen[bool]):
             confirm_label: str = "YES",
             only_acknowledge: bool = False,
             text:str = "Are you sure?",
-            name: str | None = None,
-            id: str | None = None,
-            classes: str | None = None,
+            **kwargs,
     ) -> None:
-        super().__init__(name=name, id=id, classes=classes)
+        super().__init__(**kwargs)
         self.cancel_label = cancel_label
         self.confirm_label = confirm_label
         self.only_acknowledge = only_acknowledge

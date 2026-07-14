@@ -40,11 +40,9 @@ class CycleSelector(Generic[T], Widget, can_focus=True):
         *,
         initial: int = 0,
         label: str | None = None,
-        name: str | None = None,
-        id: str | None = None,
-        classes: str | None = None,
+        **kwargs,
     ) -> None:
-        super().__init__(name=name, id=id, classes=classes)
+        super().__init__(**kwargs)
         self.options = list(options)
         self.index = initial
         self.label = label
