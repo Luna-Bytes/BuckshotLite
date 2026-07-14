@@ -55,7 +55,8 @@ class ConfirmModal(ModalScreen[bool]):
         self.text = text
 
     def on_mount(self) -> None:
-        self.query_one("#label", Static).styles.width = len(self.text) + 8
+        longest_line = max(len(line) for line in self.text.splitlines())
+        self.query_one("#label", Static).styles.width = longest_line + 8
 
     def compose(self) -> ComposeResult:
         with Vertical(id="dialog"):

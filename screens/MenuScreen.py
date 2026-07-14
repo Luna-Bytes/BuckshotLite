@@ -141,12 +141,8 @@ class MenuScreen(Screen):
     def action_select(self) -> None:
         choice = self.OPTIONS[self.index]
         if choice == "EXIT":
-            self.app.push_screen(ConfirmModal(text="Are you sure you want to quit?"), self.on_confirm_exit)
+            self.app.confirm_and_quit()
         elif choice == "SETTINGS":
             self.app.push_screen(SettingsScreen())
         elif choice == "START":
             self.app.push_screen(NewGameScreen())
-
-    def on_confirm_exit(self, confirmed: bool) -> None:
-        if confirmed:
-            self.app.exit()

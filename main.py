@@ -1,5 +1,6 @@
 from typing import Type
 
+from textual import work
 from textual._path import CSSPathType
 from textual.app import App
 from textual.binding import Binding
@@ -13,6 +14,7 @@ from screens.GameScreen import GameScreen
 
 from classes.GameManager import GameManager
 from classes.Player import Player, Human, AI
+from utils.dialogs import confirm_dialog
 
 CATPPUCCIN_MOCHA = Theme(
     name="catppuccin-mocha",
@@ -76,10 +78,16 @@ class BuckshotTUI(App):
     ):
         super().__init__(driver_class, css_path, watch_css, ansi_color)
         self.pending_game = None
+        self.is_first_game = True
 
     def start_game(self, game: Game):
         self.pending_game = game
         self.switch_mode("game")
+        if not self.is_first_game:
+            if len(self.screen_stack) > 1:
+                self.pop_screen()
+            self.push_screen(GameScreen())
+        self.is_first_game = False
 
     def on_mount(self) -> None:
         self.register_theme(CATPPUCCIN_MOCHA)
@@ -89,6 +97,14 @@ class BuckshotTUI(App):
     def action_cycle_theme(self) -> None:
         self.theme_index = (self.theme_index + 1) % len(self.THEMES)
         self.theme = self.THEMES[self.theme_index]
+
+    def action_quit(self) -> None:
+        self.confirm_and_quit()
+
+    @work(exclusive=True)
+    async def confirm_and_quit(self) -> None:
+        if await confirm_dialog(self, text="Are you sure you want to quit?"):
+            self.exit()
 
 
 if __name__ == '__main__':
