@@ -4,6 +4,7 @@ from textual.containers import Center, Vertical, Horizontal
 from textual.screen import Screen
 from textual.widgets import Footer, Static, Button
 
+from classes.Enums import GameMode, Game
 from widgets.Confirm import Confirm
 from widgets.ConfirmModal import ConfirmModal
 from widgets.CycleSelector import CycleSelector
@@ -70,12 +71,23 @@ class NewGameScreen(Screen):
         self.focus_next()
 
     def on_confirm_confirmed(self, event: Confirm.Confirmed) -> None:
+        def evaluate_name() -> tuple[bool, str|None]:
+            if len(name) <= 2:
+                return False, "Your name is too short!"
+            elif name == "GOD" or name == "DEALER":
+                return False, "You can't choose that name!"
+            return True, None
+
         selector = self.query_one(CycleSelector)
         mode = selector.value
         name = self.query_one(SimpleInput).value
 
-        if len(name) <= 2:
-            self.app.push_screen(ConfirmModal(text="Your name is too short!", confirm_label="Ok", only_acknowledge=True))
+        is_ok, message = evaluate_name()
+        if not is_ok and message is not None:
+            self.app.push_screen(ConfirmModal(text=message, confirm_label="OK", only_acknowledge=True))
+
+        game = Game(name=name, mode=GameMode.ENDLESS if mode == "Endless" else GameMode.NORMAL)
+        self.app.start_game(game)
 
     def on_confirm_cancelled(self, event: Confirm.Cancelled) -> None:
         self.app.pop_screen()

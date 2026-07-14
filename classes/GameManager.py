@@ -1,20 +1,29 @@
 import random
 from typing import Optional
 
-from classes.Enums import GameState, ItemType, Target, Action, ShootAction
+from classes.Enums import GameState, ItemType, Target, Action, ShootAction, Game, GameMode
 from classes.Item import Item, Saw, Cigarette, Handcuffs, MagnifyingGlass, Beer
-from classes.Player import Player
+from classes.Player import Player, Human, AI
 from classes.RoundManager import RoundManager
 from classes.Shotgun import Shotgun
 
 
 class GameManager:
-    def __init__(self, players: list[Player]):
+    def __init__(self, players: list[Player]|None = None):
         self.players: list[Player] = players
         self.shotgun: Shotgun = Shotgun()
         self.currentPlayer: int = 0
         self.state: GameState = GameState.CONTINUE
         self.rounds: RoundManager = RoundManager()
+        self.endless = False
+
+    def setup(self, setup:Game):
+        self.endless = setup.mode == GameMode.ENDLESS
+        self.players = [Human(), AI()]
+        self.players[0].name = setup.name.upper()[:6]
+        self.players[0].set_other_player(self.players[1])
+        self.players[1].set_other_player(self.players[0])
+
 
     def next_round(self):
         self.state = self.rounds.next_round()

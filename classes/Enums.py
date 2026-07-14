@@ -34,3 +34,12 @@ class ItemType(Enum):
     HANDCUFFS = auto(),
     MAGNIFYING_GLASS = auto(),
     BEER = auto(),
+
+@dataclass()
+class Game:
+    mode: GameMode
+    name: str
+
+class GameMode(Enum):
+    NORMAL = auto()
+    ENDLESS = auto()

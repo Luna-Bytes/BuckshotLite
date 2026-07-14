@@ -1,11 +1,15 @@
+from typing import Type
+
+from textual._path import CSSPathType
 from textual.app import App
 from textual.binding import Binding
+from textual.driver import Driver
 from textual.reactive import reactive
 from textual.theme import Theme
 
+from classes.Enums import Game
 from screens.MenuScreen import MenuScreen
-from screens.SettingsScreen import SettingsScreen
-from screens.NewGameScreen import NewGameScreen
+from screens.GameScreen import GameScreen
 
 from classes.GameManager import GameManager
 from classes.Player import Player, Human, AI
@@ -59,8 +63,23 @@ class BuckshotTUI(App):
 
     MODES = {
         "home": MenuScreen,
+        "game": GameScreen,
     }
     DEFAULT_MODE = "home"
+
+    def __init__(
+            self,
+            driver_class: Type[Driver] | None = None,
+            css_path: CSSPathType | None = None,
+            watch_css: bool = False,
+            ansi_color: bool | None = None,
+    ):
+        super().__init__(driver_class, css_path, watch_css, ansi_color)
+        self.pending_game = None
+
+    def start_game(self, game: Game):
+        self.pending_game = game
+        self.switch_mode("game")
 
     def on_mount(self) -> None:
         self.register_theme(CATPPUCCIN_MOCHA)
