@@ -55,7 +55,7 @@ class ConfirmModal(ModalScreen[bool]):
     def compose(self) -> ComposeResult:
         with Vertical(id="dialog"):
             yield Static(self.text, id="label")
-            yield Confirm(cancel_label=self.cancel_label, confirm_label=self.confirm_label, id="confirm")
+            yield Confirm(cancel_label=self.cancel_label, confirm_label=self.confirm_label, id="confirm", only_acknowledge=self.only_acknowledge)
 
 
     def on_confirm_confirmed(self, event: Confirm.Confirmed) -> None:

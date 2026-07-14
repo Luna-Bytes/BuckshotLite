@@ -5,6 +5,7 @@ from textual.screen import Screen
 from textual.widgets import Static, Footer
 
 from widgets.Confirm import Confirm
+from widgets.SimpleButton import SimpleButton
 
 
 class SettingsScreen(Screen):
@@ -40,10 +41,14 @@ class SettingsScreen(Screen):
         with Center():
             with Vertical(id="root"):
                 yield Static("This will someday become the Settings Screen")
+                yield SimpleButton(label="Cancel")
                 yield Confirm()
         yield Footer()
 
     def on_confirm_cancelled(self, event: Confirm.Cancelled) -> None:
+        self.app.pop_screen()
+
+    def on_simple_button_pressed(self, event: SimpleButton.Pressed) -> None:
         self.app.pop_screen()
 
     def action_pop_screen(self) -> None:
