@@ -6,9 +6,11 @@ from textual.containers import Center, Middle
 from textual.screen import Screen
 from textual.widgets import Static, Footer
 
-from classes.Enums import Game
+from classes.Enums import Game, ItemCount, ItemType
+from widgets.Confirm import Confirm
 from widgets.ConfirmModal import ConfirmModal
 from widgets.GameHealth import GameHealth
+from widgets.ItemWidget import ItemWidget
 
 
 class GameScreen(Screen):
@@ -63,6 +65,34 @@ would not be able to dream of heaven?
         Binding("r", "reset", "Reset")
     ]
 
+    tmp_item_count: list[ItemCount] = [
+        ItemCount(
+            type= ItemType.BEER,
+            count= 1,
+            name="Beer"
+        ),
+        ItemCount(
+            type= ItemType.HANDCUFFS,
+            count= 1,
+            name="Handcuff"
+        ),
+        ItemCount(
+            type= ItemType.CIGARETTE,
+            count= 1,
+            name="Cigarette"
+        ),
+        ItemCount(
+            type= ItemType.MAGNIFYING_GLASS,
+            count= 5,
+            name="Magnifying Glass"
+        ),
+        ItemCount(
+            type= ItemType.SAW,
+            count= 0,
+            name="Saw"
+        )
+    ]
+
     def __init__(self) -> None:
         super().__init__()
         self.game_setup: Game = None
@@ -71,6 +101,8 @@ would not be able to dream of heaven?
         with Center():
             with Middle():
                 yield GameHealth(health=[("AUTUMN", 3), ("DEALER", 3)])
+                yield ItemWidget(items=self.tmp_item_count)
+                yield Confirm()
         yield Footer()
 
     def on_mount(self) -> None:
