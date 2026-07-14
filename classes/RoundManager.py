@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import Optional
 
 from classes.Shotgun import ShellCount, Shotgun
-from classes.Enums import GameState
+from classes.Enums import GameState, TurnEvents, NewShells
 
 
 @dataclass
@@ -59,10 +59,11 @@ class RoundManager:
         ]
         self.round_count = len(self.loadedRounds)
 
-    def load_next_shells(self, shotgun: Shotgun):
+    def load_next_shells(self, shotgun: Shotgun) -> TurnEvents:
         if self.current_round.fixed_loaded_shells is not None:
             next_shells: ShellCount = self.current_round.fixed_loaded_shells.pop(0)
             shotgun.load_shells(next_shells.live, next_shells.blank)
+            return NewShells(lives=next_shells.live, blankes=next_shells.blank, total=next_shells.live+next_shells.blank)
 
     def next_round(self) -> GameState:
         if self.round_index is None:

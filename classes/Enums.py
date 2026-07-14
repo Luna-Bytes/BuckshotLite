@@ -59,7 +59,11 @@ class GameEnd(Enum):
     GAME_WON = auto()
     DOUBLE_OR_NOTHING = auto()
 
-TurnEvents = Union[GameEnd, NewRound, NewShells]
+@dataclass
+class ItemGained:
+    type: ItemType
+
+TurnEvents = Union[GameEnd, NewRound, NewShells, ItemGained]
 
 @dataclass
 class ItemCount:
