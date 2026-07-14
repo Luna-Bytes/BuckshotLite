@@ -101,7 +101,7 @@ would not be able to dream of heaven?
         with Center():
             with Middle():
                 yield GameHealth(health=[("AUTUMN", 3), ("DEALER", 3)])
-                yield ItemWidget(items=self.tmp_item_count)
+                yield ItemWidget(items=self.tmp_item_count, player_name="AUTUMN")
                 yield Confirm()
         yield Footer()
 

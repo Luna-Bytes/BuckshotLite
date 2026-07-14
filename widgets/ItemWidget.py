@@ -29,9 +29,10 @@ class ItemWidget(Widget, can_focus=True):
     items: reactive[list[ItemCount]] = reactive(list)
     selected_index: reactive[int] = reactive(0)
 
-    def __init__(self, items: list[ItemCount] | None = None, **kwargs):
+    def __init__(self, items: list[ItemCount] | None = None, player_name: str | None = None, **kwargs):
         super().__init__(**kwargs)
         self.items = items or []
+        self.label = f"{player_name}'s ITEMS" if player_name is not None else ""
 
     def watch_items(self, _: list[ItemCount]) -> None:
         if self.selected_index >= len(self.items):
@@ -58,6 +59,7 @@ class ItemWidget(Widget, can_focus=True):
     def on_mount(self) -> None:
         self.styles.width = (max([len(item.name) for item in self.items]) + 10)
         self.styles.height = len(self.items) + 2
+        self.border_title = self.label
 
     def render(self) -> Text:
         text = Text()
