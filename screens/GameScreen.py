@@ -7,7 +7,9 @@ from textual.containers import Center, Middle
 from textual.screen import Screen
 from textual.widgets import Footer
 
-from classes.Enums import Game, ItemCount, ItemType, Target
+from classes.Enums import Game, ItemCount, ItemType, Target, TurnEvents, GameEnd, NewRound, NewShells, ItemGained
+from classes.GameManager import GameManager
+from classes.Item import Handcuffs, Saw, Cigarette, MagnifyingGlass, Beer
 from utils.dialogs import modal_wait
 from widgets.PlayerSelectModal import PlayerSelectModal
 from widgets.SelectWidget import SelectWidget
@@ -97,6 +99,8 @@ would not be able to dream of heaven?
         )
     ]
 
+    game: GameManager = None
+
     def __init__(self) -> None:
         super().__init__()
         self.game_setup: Game = None
@@ -116,11 +120,57 @@ would not be able to dream of heaven?
     async def target_select(self) -> None:
         await modal_wait(self.app, PlayerSelectModal())
 
-    def on_mount(self) -> None:
-        def get_random_text():
-            return self.ominous_texts[random.randint(0,len(self.ominous_texts)-1)]
+    @work(exclusive=True)
+    async def handel_events(self, events: list[TurnEvents] | TurnEvents) -> None:
+        def item_type_to_name(_type: ItemType) -> str:
+            items = [Handcuffs(), Saw(), Cigarette(), MagnifyingGlass(), Beer()]
+            for item in items:
+                if item.type == _type:
+                    return item.name
+            return "idk"
+
+        if not isinstance(events, list):
+            events = [events]
+
+        for event in events:
+            match event:
+                case GameEnd():
+                    pass
+                case NewRound(lives=lives):
+                    await modal_wait(self.app, ConfirmModal(
+                        only_acknowledge=True,
+                        confirm_label="OK",
+                        text=f"New Round with {lives} lives per Player"
+                        )
+                    )
+                case NewShells(lives=lives,blankes=blankes, total=total):
+                    await modal_wait(self.app, ConfirmModal(
+                        only_acknowledge=True,
+                        confirm_label="OK",
+                        text=f"Shotgun was loaded in a random Order with {lives} Lives and {blankes} Blankes"
+                        )
+                    )
+                case ItemGained(type=item_type):
+                    await modal_wait(self.app, ConfirmModal(
+                        only_acknowledge=True,
+                        confirm_label="OK",
+                        text="You gained a " + item_type_to_name(item_type)
+                        )
+                    )
+
+    async def on_mount(self) -> None:
         self.game_setup = self.app.pending_game
-        self.app.push_screen(ConfirmModal(only_acknowledge=True, text=get_random_text()))
+        self.setup_game()
+
+    @work(exclusive=True)
+    async def setup_game(self) -> None:
+        def get_random_text():
+            return self.ominous_texts[random.randint(0, len(self.ominous_texts) - 1)]
+
+        await modal_wait(self.app, ConfirmModal(only_acknowledge=True, text=get_random_text()))
+
+        game = GameManager()
+        self.handel_events(game.setup(self.game_setup))
 
     def action_reset(self) -> None:
         self.app.start_game(self.game_setup)
