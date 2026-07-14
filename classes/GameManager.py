@@ -71,7 +71,7 @@ class GameManager:
             print(player.name + ": " + "⚡︎" * player.health)
 
     def do_turn(self):
-        def use_item(_item: ItemType, _target: Optional[Target]):
+        def use_item(_item: ItemType):
             for index, iitem in enumerate(player.items.get_items()):
                 if _item == iitem.type:
                     player.items.use_item(index, player, self.shotgun)
@@ -94,8 +94,7 @@ class GameManager:
                     "themselves" if action.target == Target.SELF else player.otherPlayer.name))
             else:
                 item = action.item
-                target = action.target
-                use_item(item, target)
+                use_item(item)
 
             self.update_state()
 

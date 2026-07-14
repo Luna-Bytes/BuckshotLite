@@ -23,7 +23,6 @@ class ShootAction:
 @dataclass(frozen=True)
 class ItemUseAction:
     item: ItemType
-    target: Optional[Target]  # some items also need a target (self/dealer)
 
 
 Action = Union[ShootAction, ItemUseAction]
