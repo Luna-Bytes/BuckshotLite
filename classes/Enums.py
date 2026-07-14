@@ -42,3 +42,7 @@ class Game:
 class GameMode(Enum):
     NORMAL = auto()
     ENDLESS = auto()
+
+@dataclass(frozen=True)
+class NewRound:
+    lives: int
