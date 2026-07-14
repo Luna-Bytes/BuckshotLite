@@ -7,7 +7,7 @@ from textual.message import Message
 from widgets.SimpleButton import SimpleButton
 
 
-class Confirm(Horizontal, can_focus=True):
+class Confirm(Horizontal):
     DEFAULT_CSS = """
         Confirm {
             width: 100%;

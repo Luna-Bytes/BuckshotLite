@@ -22,27 +22,17 @@ class NewGameScreen(Screen):
             min-width: 40;
             height: auto;
             align: center middle;
+            content-align: center middle;
             border: round $accent;
             padding: 2;
         }
         
-        CycleSelector {
+        #selector {
             width: 100%;
             content-align: center middle;
             padding-top: 1;
         }
         
-        #confirm {
-            height: auto;
-            width: 100%;
-            align: center middle;
-        }
-        
-        Static {
-            height: auto;
-            width: auto;
-            padding: 1;
-        }
     """
 
     BINDINGS = [
@@ -55,7 +45,7 @@ class NewGameScreen(Screen):
     def compose(self) -> ComposeResult:
         with Center():
             with Vertical(id="root"):
-                yield CycleSelector(["Normal", "Endless"], label="MODE")
+                yield CycleSelector(["Normal", "Endless"], label="MODE", id="selector")
                 yield Confirm(confirm_label="Start")
 
         yield Footer()
