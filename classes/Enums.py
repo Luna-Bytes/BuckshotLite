@@ -59,3 +59,19 @@ class ItemCount:
     type: ItemType
     count: int
     name: str
+
+@dataclass
+class KnownShells:
+    type: ShellKnowledge
+    known_by: KnowledgeType
+
+class ShellKnowledge(Enum):
+    LIVE = auto()
+    BLANK = auto()
+    UNKNOWN = auto()
+
+class KnowledgeType(Enum):
+    MAGNIFYING = auto()
+    TELEFON = auto()
+    FIRED = auto()
+    NONE = auto()
