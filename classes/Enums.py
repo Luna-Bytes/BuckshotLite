@@ -75,6 +75,7 @@ class ItemCount:
 class KnownShells:
     type: ShellKnowledge
     known_by: KnowledgeType
+    inverted: bool
 
 class ShellKnowledge(Enum):
     LIVE = auto()

@@ -7,7 +7,8 @@ from textual.containers import Center, Middle
 from textual.screen import Screen
 from textual.widgets import Footer
 
-from classes.Enums import Game, ItemCount, ItemType, Target, TurnEvents, GameEnd, NewRound, NewShells, ItemGained
+from classes.Enums import Game, ItemCount, ItemType, Target, TurnEvents, GameEnd, NewRound, NewShells, ItemGained, \
+    KnownShells, ShellKnowledge, KnowledgeType
 from classes.GameManager import GameManager
 from classes.Item import Handcuffs, Saw, Cigarette, MagnifyingGlass, Beer
 from utils.dialogs import modal_wait
@@ -16,6 +17,7 @@ from widgets.SelectWidget import SelectWidget
 from widgets.ConfirmModal import ConfirmModal
 from widgets.GameHealth import GameHealth
 from widgets.ItemWidget import ItemWidget
+from widgets.ShellDisplay import ShellDisplay
 
 
 class GameScreen(Screen):
@@ -99,6 +101,49 @@ would not be able to dream of heaven?
         )
     ]
 
+    tmp_shells: list[KnownShells] = [
+        KnownShells(
+            type= ShellKnowledge.BLANK,
+            known_by=KnowledgeType.FIRED,
+            inverted=False
+        ),
+        KnownShells(
+            type=ShellKnowledge.LIVE,
+            known_by=KnowledgeType.FIRED,
+            inverted=False
+        ),
+        KnownShells(
+            type=ShellKnowledge.LIVE,
+            known_by=KnowledgeType.NONE,
+            inverted=True
+        ),
+        KnownShells(
+            type=ShellKnowledge.UNKNOWN,
+            known_by=KnowledgeType.NONE,
+            inverted=False
+        ),
+        KnownShells(
+            type=ShellKnowledge.LIVE,
+            known_by=KnowledgeType.TELEFON,
+            inverted=False
+        ),
+        KnownShells(
+            type=ShellKnowledge.UNKNOWN,
+            known_by=KnowledgeType.NONE,
+            inverted=False
+        ),
+        KnownShells(
+            type=ShellKnowledge.UNKNOWN,
+            known_by=KnowledgeType.NONE,
+            inverted=False
+        ),
+        KnownShells(
+            type=ShellKnowledge.UNKNOWN,
+            known_by=KnowledgeType.NONE,
+            inverted=False
+        )
+    ]
+
     game: GameManager = None
 
     def __init__(self) -> None:
@@ -111,6 +156,7 @@ would not be able to dream of heaven?
                 yield GameHealth(health=[("AUTUMN", 3), ("DEALER", 3)])
                 yield ItemWidget(items=self.tmp_item_count, player_name="AUTUMN")
                 yield SelectWidget(options=["SELF", "DEALER"])
+                yield ShellDisplay(shells=self.tmp_shells, index=3)
         yield Footer()
 
     def action_shoot(self) -> None:

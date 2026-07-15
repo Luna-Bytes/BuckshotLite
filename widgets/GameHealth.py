@@ -6,7 +6,7 @@ from textual.widgets import Static
 class GameHealth(Vertical):
     DEFAULT_CSS = """
         GameHealth {
-            width: 17;
+            width: 18;
             height: 2;
         }
     """
