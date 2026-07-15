@@ -11,7 +11,7 @@ from classes.Enums import KnownShells, ShellKnowledge, KnowledgeType
 class ShellDisplay(Widget, can_focus=False):
 
     DEFAULT_CSS = """
-    CycleSelector {
+    ShellDisplay {
         min-width: 10;
         min-height: 3;
         width: auto;

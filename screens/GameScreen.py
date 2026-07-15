@@ -11,8 +11,10 @@ from classes.Enums import Game, ItemCount, ItemType, Target, TurnEvents, GameEnd
     KnownShells, ShellKnowledge, KnowledgeType
 from classes.GameManager import GameManager
 from classes.Item import Handcuffs, Saw, Cigarette, MagnifyingGlass, Beer
+from classes.Shotgun import ShellCount
 from utils.dialogs import modal_wait
 from widgets.PlayerSelectModal import PlayerSelectModal
+from widgets.RoundDisplay import RoundDisplay
 from widgets.SelectWidget import SelectWidget
 from widgets.ConfirmModal import ConfirmModal
 from widgets.GameHealth import GameHealth
@@ -151,12 +153,10 @@ would not be able to dream of heaven?
         self.game_setup: Game = None
 
     def compose(self) -> ComposeResult:
-        with Center():
-            with Middle():
-                yield GameHealth(health=[("AUTUMN", 3), ("DEALER", 3)])
-                yield ItemWidget(items=self.tmp_item_count, player_name="AUTUMN")
-                yield SelectWidget(options=["SELF", "DEALER"])
-                yield ShellDisplay(shells=self.tmp_shells, index=3)
+        yield GameHealth(health=[("AUTUMN", 3), ("DEALER", 3)])
+        yield ItemWidget(items=self.tmp_item_count, player_name="AUTUMN")
+        yield ShellDisplay(shells=self.tmp_shells, index=3)
+        yield RoundDisplay(total_shells=ShellCount(live=4,blank=4), remaining_shells=ShellCount(live=2,blank=2))
         yield Footer()
 
     def action_shoot(self) -> None:
