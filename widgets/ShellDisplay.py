@@ -4,7 +4,6 @@ from rich.console import Group
 from rich.text import Text
 from textual.widget import Widget
 from textual.reactive import reactive
-from textual.binding import Binding
 
 from classes.Enums import KnownShells, ShellKnowledge, KnowledgeType
 
@@ -21,11 +20,6 @@ class ShellDisplay(Widget, can_focus=False):
     }
     """
 
-    BINDINGS = [
-        Binding("left", "prev", "Previous"),
-        Binding("right", "next", "Next"),
-    ]
-
     index = reactive(0, layout=True)
 
     def __init__(
@@ -33,13 +27,11 @@ class ShellDisplay(Widget, can_focus=False):
         *,
         shells: list[KnownShells],
         index: int = 0,
-        label: str | None = None,
         **kwargs,
     ) -> None:
         super().__init__(**kwargs)
         self.shells = shells
         self.index = index
-        self.label = label
 
 
     def render(self):
