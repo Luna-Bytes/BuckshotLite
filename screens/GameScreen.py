@@ -75,6 +75,9 @@ would not be able to dream of heaven?
         Binding("x", "shoot", "Shoot"),
     ]
 
+    total_shells: ShellCount
+    remaining_shells: ShellCount
+
     tmp_item_count: list[ItemCount] = [
         ItemCount(
             type= ItemType.BEER,
@@ -150,14 +153,26 @@ would not be able to dream of heaven?
 
     def __init__(self) -> None:
         super().__init__()
+        self.round: int = 0
         self.game_setup: Game = None
+        self.total_shells = ShellCount(0,0)
+        self.remaining_shells = ShellCount(0,0)
 
     def compose(self) -> ComposeResult:
         yield GameHealth(health=[("AUTUMN", 3), ("DEALER", 3)])
         yield ItemWidget(items=self.tmp_item_count, player_name="AUTUMN")
         yield ShellDisplay(shells=self.tmp_shells, index=3)
-        yield RoundDisplay(total_shells=ShellCount(live=4,blank=4), remaining_shells=ShellCount(live=2,blank=2))
+        self.round_display = RoundDisplay(total_shells=self.total_shells, remaining_shells=self.remaining_shells)
+        yield self.round_display
         yield Footer()
+
+    def update_info(self) -> None:
+        self.total_shells = self.game.shotgun.shellTypes if self.game is not None else ShellCount(0, 0)
+        self.remaining_shells = self.game.shotgun.remainingTypes if self.game is not None else ShellCount(0, 0)
+        self.round = self.game.rounds.round_index + 1 if self.game is not None else 0
+        self.round_display.total_shells = self.total_shells
+        self.round_display.remaining_shells = self.remaining_shells
+        self.round_display.round_index = self.round
 
     def action_shoot(self) -> None:
         self.target_select()
@@ -203,8 +218,9 @@ would not be able to dream of heaven?
                         text="You gained a " + item_type_to_name(item_type)
                         )
                     )
+        self.update_info()
 
-    async def on_mount(self) -> None:
+    def on_mount(self) -> None:
         self.game_setup = self.app.pending_game
         self.setup_game()
 
@@ -215,8 +231,8 @@ would not be able to dream of heaven?
 
         await modal_wait(self.app, ConfirmModal(only_acknowledge=True, text=get_random_text()))
 
-        game = GameManager()
-        self.handel_events(game.setup(self.game_setup))
+        self.game = GameManager()
+        self.handel_events(self.game.setup(self.game_setup))
 
     def action_reset(self) -> None:
         self.app.start_game(self.game_setup)
