@@ -1,4 +1,5 @@
 import random
+import os
 
 from textual import work
 from textual.app import ComposeResult
@@ -30,43 +31,10 @@ class GameScreen(Screen):
         }
         """
 
-    ominous_text_1 = r"""
-There’s one at the door, at the gate to damnation
-Is it thief, thug or whore?
-There’s one at the door
-and there’s room for one more 
-until the end of creation.
-    """.strip("\n")
-
-    ominous_text_2 = r"""
-Along the shore the cloud waves break,
-The twin suns sink behind the lake,
-The shadows lengthen
-In Carcosa.
-
-Strange is the night where black stars rise,
-And strange moons circle through the skies
-But stranger still is
-Lost Carcosa.
-
-Songs that the Hyades shall sing,
-Where flap the tatters of the King,
-Must die unheard in
-Dim Carcosa.
-
-Song of my soul, my voice is dead;
-Die thou, unsung, as tears unshed
-Shall dry and die in
-Lost Carcosa.
-        """.strip("\n")
-
-    ominous_text_3 = r"""
-What power would hell have;
-if those imprisoned here,
-would not be able to dream of heaven?
-""".strip("\n")
-
-    ominous_texts = [ominous_text_1, ominous_text_2, ominous_text_3]
+    ominous_texts = [
+        open(os.path.join("texts/ominous", file)).read().strip("\n")
+        for file in os.listdir("texts/ominous")
+    ]
 
     BINDINGS = [
         Binding("r", "reset", "Reset"),
