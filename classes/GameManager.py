@@ -62,7 +62,8 @@ class GameManager:
 
         return events
 
-
+    def get_player_health(self) -> list[tuple[str, int]]:
+        return [(player.name, player.health) for player in self.players]
 
     def run(self):
         self.rounds.load_default_rounds()

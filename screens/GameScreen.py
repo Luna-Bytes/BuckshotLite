@@ -115,12 +115,6 @@ class GameScreen(Screen):
         )
     ]
 
-    player_name = "PLAYER"
-    dealer_name = "DEALER"
-
-    player_lives = 0
-    dealer_lives = 0
-
     game: GameManager = None
 
     def __init__(self) -> None:
@@ -131,7 +125,7 @@ class GameScreen(Screen):
         self.remaining_shells = ShellCount(0,0)
 
     def compose(self) -> ComposeResult:
-        self.game_health = GameHealth(health=[(self.player_name, self.player_lives), (self.dealer_name, self.dealer_lives)])
+        self.game_health = GameHealth()
         yield self.game_health
         yield ItemWidget(items=self.tmp_item_count, player_name="AUTUMN")
         yield ShellDisplay(shells=self.tmp_shells, index=3)
@@ -146,11 +140,7 @@ class GameScreen(Screen):
         self.round_display.total_shells = self.total_shells
         self.round_display.remaining_shells = self.remaining_shells
         self.round_display.round_index = self.round
-        self.player_name = self.game.players[0].name if not None else "PLAYER"
-        self.dealer_name = self.game.players[1].name if not None else "DEALER"
-        self.player_lives = self.game.players[0].health if not None else 0
-        self.dealer_lives = self.game.players[1].health if not None else 0
-        self.game_health.health = [(self.player_name, self.player_lives), (self.dealer_name, self.dealer_lives)]
+        self.game_health.health = self.game.get_player_health() if self.game is not None else [("PLAYER", 2),("DEALER", 2)]
 
     def action_shoot(self) -> None:
         self.target_select()
