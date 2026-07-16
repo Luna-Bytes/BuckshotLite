@@ -119,6 +119,8 @@ class GameScreen(Screen):
 
     def __init__(self) -> None:
         super().__init__()
+        self.game_health = None
+        self.round_display = None
         self.round: int = 0
         self.game_setup: Game = None
         self.total_shells = ShellCount(0,0)
