@@ -3,11 +3,10 @@ import random
 from textual import work
 from textual.app import ComposeResult
 from textual.binding import Binding
-from textual.containers import Center, Middle
 from textual.screen import Screen
 from textual.widgets import Footer
 
-from classes.Enums import Game, ItemCount, ItemType, Target, TurnEvents, GameEnd, NewRound, NewShells, ItemGained, \
+from classes.Enums import Game, ItemCount, ItemType, TurnEvents, GameEnd, NewRound, NewShells, ItemGained, \
     KnownShells, ShellKnowledge, KnowledgeType
 from classes.GameManager import GameManager
 from classes.Item import Handcuffs, Saw, Cigarette, MagnifyingGlass, Beer
@@ -15,7 +14,6 @@ from classes.Shotgun import ShellCount
 from utils.dialogs import modal_wait
 from widgets.PlayerSelectModal import PlayerSelectModal
 from widgets.RoundDisplay import RoundDisplay
-from widgets.SelectWidget import SelectWidget
 from widgets.ConfirmModal import ConfirmModal
 from widgets.GameHealth import GameHealth
 from widgets.ItemWidget import ItemWidget
@@ -149,6 +147,12 @@ would not be able to dream of heaven?
         )
     ]
 
+    player_name = "PLAYER"
+    dealer_name = "DEALER"
+
+    player_lives = 0
+    dealer_lives = 0
+
     game: GameManager = None
 
     def __init__(self) -> None:
@@ -159,7 +163,8 @@ would not be able to dream of heaven?
         self.remaining_shells = ShellCount(0,0)
 
     def compose(self) -> ComposeResult:
-        yield GameHealth(health=[("AUTUMN", 3), ("DEALER", 3)])
+        self.game_health = GameHealth(health=[(self.player_name, self.player_lives), (self.dealer_name, self.dealer_lives)])
+        yield self.game_health
         yield ItemWidget(items=self.tmp_item_count, player_name="AUTUMN")
         yield ShellDisplay(shells=self.tmp_shells, index=3)
         self.round_display = RoundDisplay(total_shells=self.total_shells, remaining_shells=self.remaining_shells)
@@ -173,6 +178,11 @@ would not be able to dream of heaven?
         self.round_display.total_shells = self.total_shells
         self.round_display.remaining_shells = self.remaining_shells
         self.round_display.round_index = self.round
+        self.player_name = self.game.players[0].name if not None else "PLAYER"
+        self.dealer_name = self.game.players[1].name if not None else "DEALER"
+        self.player_lives = self.game.players[0].health if not None else 0
+        self.dealer_lives = self.game.players[1].health if not None else 0
+        self.game_health.health = [(self.player_name, self.player_lives), (self.dealer_name, self.dealer_lives)]
 
     def action_shoot(self) -> None:
         self.target_select()
