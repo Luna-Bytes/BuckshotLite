@@ -55,6 +55,7 @@ class MagnifyingGlass(Item):
         self.type: ItemType = ItemType.MAGNIFYING_GLASS
 
     def use(self, player: Player, shotgun: Shotgun):
+        player.update_shell()
         print("Current Shell is " + ("live" if shotgun.loaded_shells[0].isLive else "blank"))
 
 class Beer(Item):

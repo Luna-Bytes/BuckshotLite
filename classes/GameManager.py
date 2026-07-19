@@ -10,6 +10,8 @@ from classes.Shotgun import Shotgun
 
 class GameManager:
     def __init__(self, players: list[Player]|None = None):
+        if players is None:
+            players: list[Player] = [Player() for i in range(2)]
         self.players: list[Player] = players
         self.shotgun: Shotgun = Shotgun()
         self.currentPlayer: int = 0
@@ -57,7 +59,10 @@ class GameManager:
                     events.append(ItemGained(type=item.type))
 
         self.currentPlayer = 0
-        events.append(self.rounds.load_next_shells(self.shotgun))
+        shell_event = self.rounds.load_next_shells(self.shotgun)
+        events.append(shell_event)
+        for player in self.players:
+            player.fill_with_empty_shells(shell_event.total)
         self.state = GameState.CONTINUE
 
         return events

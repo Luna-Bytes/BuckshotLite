@@ -1,3 +1,4 @@
+import random
 from dataclasses import dataclass
 from typing import Optional
 
@@ -59,11 +60,16 @@ class RoundManager:
         ]
         self.round_count = len(self.loadedRounds)
 
-    def load_next_shells(self, shotgun: Shotgun) -> TurnEvents:
+    def load_next_shells(self, shotgun: Shotgun) -> NewShells:
         if self.current_round.fixed_loaded_shells is not None:
             next_shells: ShellCount = self.current_round.fixed_loaded_shells.pop(0)
             shotgun.load_shells(next_shells.live, next_shells.blank)
             return NewShells(lives=next_shells.live, blankes=next_shells.blank, total=next_shells.live+next_shells.blank)
+        total = random.randint(2,8)
+        new_lives =  int(total/2)
+        new_blanks = total - new_lives
+
+        return NewShells(lives=new_lives, blankes=new_blanks, total=total)
 
     def next_round(self) -> GameState:
         if self.round_index is None:

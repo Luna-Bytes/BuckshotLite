@@ -4,9 +4,8 @@ import random
 import re
 from typing import TYPE_CHECKING
 
-from classes.Enums import Action, ShootAction, Target, ItemUseAction
+from classes.Enums import Action, ShootAction, Target, ItemUseAction, ShellKnowledge, KnownShells, KnowledgeType
 from classes.Item import Item
-from classes.Shell import Shell
 from classes.ItemManager import ItemManager
 
 if TYPE_CHECKING:
@@ -16,7 +15,8 @@ if TYPE_CHECKING:
 class Player:
     def __init__(self):
         self.name: str = ""
-        self.shells: list[Shell] = []
+        self.shells: list[KnownShells] = []
+        self.shell_index: int = 0
         self.health: int = 0
         self.otherPlayer: Player = None
         self.isAI: bool = False
@@ -41,6 +41,20 @@ class Player:
     def last_live(self):
         self.max_health = 1
         self.health = 1
+
+    def shoot_shell(self, was_live: bool):
+        self.shells[self.shell_index].type = ShellKnowledge.LIVE if was_live else ShellKnowledge.BLANK
+        self.shell_index += 1
+
+    def invert_current_shell(self):
+        self.shells[self.shell_index].inverted = not self.shells[self.shell_index].inverted
+
+    def fill_with_empty_shells(self, shells: int):
+        self.shells = [KnownShells(type=ShellKnowledge.UNKNOWN,known_by=KnowledgeType.NONE,inverted=False) for _ in range(shells)]
+        self.shell_index = 0
+
+    def update_shell(self, offset_from_current: int, shell: KnownShells):
+        self.shells[self.shell_index + offset_from_current] = shell
 
     def set_other_player(self, other_player: Player):
         self.otherPlayer = other_player
