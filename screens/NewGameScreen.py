@@ -4,7 +4,7 @@ from textual.containers import Center, Vertical, Horizontal
 from textual.screen import Screen
 from textual.widgets import Footer, Static, Button
 
-from classes.Enums import GameMode, Game
+from classes.Enums import GameMode, Game, ItemType
 from widgets.Confirm import Confirm
 from widgets.ConfirmModal import ConfirmModal
 from widgets.CycleSelector import CycleSelector
@@ -86,7 +86,13 @@ class NewGameScreen(Screen):
         if not is_ok and message is not None:
             self.app.push_screen(ConfirmModal(text=message, confirm_label="OK", only_acknowledge=True))
 
-        game = Game(name=name, mode=GameMode.ENDLESS if mode == "Endless" else GameMode.NORMAL)
+        game = Game(player_name=name,
+                    mode=GameMode.ENDLESS if mode == "Endless" else GameMode.NORMAL,
+                    available_items=[
+                            ItemType.SAW, ItemType.CIGARETTE, ItemType.HANDCUFFS,
+                            ItemType.MAGNIFYING_GLASS, ItemType.BEER
+                        ]
+                    )
         self.app.start_game(game)
 
     def on_confirm_cancelled(self, event: Confirm.Cancelled) -> None:

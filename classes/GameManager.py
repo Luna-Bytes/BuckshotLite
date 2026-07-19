@@ -1,8 +1,7 @@
 import random
 
-from classes.Enums import GameState, ItemType, Target, Action, ShootAction, Game, GameMode, TurnEvents, NewRound, \
-    ItemGained
-from classes.Item import Item, Saw, Cigarette, Handcuffs, MagnifyingGlass, Beer
+from classes.Enums import GameState, ItemType, Target, Action, ShootAction, Game, GameMode, TurnEvents, NewRound
+from classes.ItemManager import ItemManager
 from classes.Player import Player, Human, AI
 from classes.RoundManager import RoundManager
 from classes.Shotgun import Shotgun
@@ -13,6 +12,8 @@ class GameManager:
         if players is None:
             players: list[Player] = [Player() for i in range(2)]
         self.players: list[Player] = players
+        self.player_items: list[ItemManager] = [ItemManager() for i in range(2)]
+        self.available_items: list[ItemType] = []
         self.shotgun: Shotgun = Shotgun()
         self.currentPlayer: int = 0
         self.state: GameState = GameState.CONTINUE
@@ -23,8 +24,9 @@ class GameManager:
         self.endless = setup.mode == GameMode.ENDLESS
         if not self.endless:
             self.rounds.load_default_rounds()
+        self.available_items = setup.available_items
         self.players = [Human(), AI()]
-        self.players[0].name = setup.name.upper()[:6]
+        self.players[0].name = setup.player_name.upper()[:6]
         self.players[0].set_other_player(self.players[1])
         self.players[1].set_other_player(self.players[0])
 
@@ -39,24 +41,24 @@ class GameManager:
         for player in self.players:
             player.health = lives
             player.max_health = lives
+        for items in self.player_items:
+            items.create_empty_dict(self.available_items)
         events.append(NewRound(lives))
         events.extend(self.next_loadout())
         return events
 
     def next_loadout(self) -> list[TurnEvents]:
         def random_item():
-            return available_items[random.randint(0, len(available_items) - 1)]
+            return self.available_items[random.randint(0, len(self.available_items) - 1)]
         events: list[TurnEvents] = []
 
-        available_items: list[Item] = [Saw(), Cigarette(), Handcuffs(), MagnifyingGlass(), Beer()]
-        for player in self.players:
+        for index, player in enumerate(self.players):
             player.skip_next_turn = False
             player.skipped_last_turn = False
             for i in range(self.rounds.current_round.items):
-                item = random_item()
-                player.items.add_item(random_item())
+                event = self.player_items[index].add_item(random_item())
                 if type(player) is Human:
-                    events.append(ItemGained(type=item.type))
+                    events.append(event)
 
         self.currentPlayer = 0
         shell_event = self.rounds.load_next_shells(self.shotgun)

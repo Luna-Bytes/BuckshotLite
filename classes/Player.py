@@ -23,7 +23,6 @@ class Player:
         self.max_health: int = 0
         self.skip_next_turn: bool = False
         self.skipped_last_turn: bool = False
-        self.items: ItemManager = ItemManager()
 
     def __repr__(self):
         return (

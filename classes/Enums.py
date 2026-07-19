@@ -1,6 +1,10 @@
 from dataclasses import dataclass
 from enum import Enum, auto
-from typing import Union, Optional
+from typing import Union, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from classes.Item import Item, Cigarette, Saw, Handcuffs, MagnifyingGlass, Beer
+
 
 class GameState(Enum):
     CONTINUE = auto()
@@ -35,10 +39,37 @@ class ItemType(Enum):
     MAGNIFYING_GLASS = auto(),
     BEER = auto(),
 
+def itemtype_to_name(itemtype: ItemType) -> str:
+    match itemtype:
+        case ItemType.SAW:
+            return "Saw"
+        case ItemType.CIGARETTE:
+            return "Cigarette"
+        case ItemType.HANDCUFFS:
+            return "Hand Cuffs"
+        case ItemType.MAGNIFYING_GLASS:
+            return "Magnifying Glass"
+        case ItemType.BEER:
+            return "Beer"
+
+def itemtype_to_item(itemtype: ItemType) -> Item:
+    match itemtype:
+        case ItemType.SAW:
+            return Saw()
+        case ItemType.CIGARETTE:
+            return Cigarette()
+        case ItemType.HANDCUFFS:
+            return Handcuffs()
+        case ItemType.MAGNIFYING_GLASS:
+            return MagnifyingGlass()
+        case ItemType.BEER:
+            return Beer()
+
 @dataclass()
 class Game:
     mode: GameMode
-    name: str
+    player_name: str
+    available_items: list[ItemType]
 
 class GameMode(Enum):
     NORMAL = auto()
@@ -61,6 +92,10 @@ class GameEnd(Enum):
 
 @dataclass
 class ItemGained:
+    type: ItemType
+    success: bool
+
+class ItemUsed:
     type: ItemType
 
 TurnEvents = Union[GameEnd, NewRound, NewShells, ItemGained]

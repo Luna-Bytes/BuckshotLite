@@ -75,6 +75,8 @@ class GameScreen(Screen):
 
     def __init__(self) -> None:
         super().__init__()
+        self.item_widget_dealer = None
+        self.item_widget_player = None
         self.game_health = None
         self.shell_display = None
         self.game_setup: Game = None
@@ -86,7 +88,10 @@ class GameScreen(Screen):
     def compose(self) -> ComposeResult:
         self.game_health = GameHealth()
         yield self.game_health
-        yield ItemWidget(items=self.tmp_item_count, player_name="AUTUMN")
+        self.item_widget_player = ItemWidget()
+        self.item_widget_dealer = ItemWidget()
+        yield self.item_widget_player
+        yield self.item_widget_dealer
         self.shell_display = ShellDisplay()
         yield self.shell_display
         self.round_display = RoundDisplay(total_shells=self.total_shells, remaining_shells=self.remaining_shells)
@@ -103,6 +108,13 @@ class GameScreen(Screen):
         self.game_health.health = self.game.get_player_health() if self.game is not None else [("PLAYER", 2),("DEALER", 2)]
         self.shell_display.shells = self.game.players[0].shells
         self.shell_display.index = self.game.players[0].shell_index
+
+        self.item_widget_player.items = self.game.player_items[0].get_items()
+        self.item_widget_dealer.items = self.game.player_items[1].get_items()
+        self.item_widget_player.player_name = self.game.players[0].name
+        self.item_widget_dealer.player_name = self.game.players[1].name
+        self.item_widget_dealer.can_focus = False
+
 
     def action_shoot(self) -> None:
         self.target_select()

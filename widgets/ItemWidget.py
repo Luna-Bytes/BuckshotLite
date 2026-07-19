@@ -4,7 +4,7 @@ from textual.binding import Binding
 from textual.reactive import reactive
 from textual.widget import Widget
 
-from classes.Enums import ItemCount
+from classes.Enums import ItemCount, ItemType
 
 
 class ItemWidget(Widget, can_focus=True):
@@ -26,18 +26,28 @@ class ItemWidget(Widget, can_focus=True):
         Binding("down", "move_down", "Down")
     ]
 
-    items: reactive[list[ItemCount]] = reactive(list)
-    selected_index: reactive[int] = reactive(0)
+    items: reactive[list[ItemCount]] = reactive(list, layout=True, always_update=True)
+    selected_index: reactive[int] = reactive(0, layout=True, always_update=True)
+    player_name: reactive[str | None] = reactive(None, layout=True)
 
     def __init__(self, items: list[ItemCount] | None = None, player_name: str | None = None, **kwargs):
         super().__init__(**kwargs)
-        self.items = items or []
-        self.label = f"{player_name}'s ITEMS" if player_name is not None else ""
+        self.items = items or [ItemCount(type=ItemType.SAW, count=0, name="Saw")]
+        self.player_name = player_name
+        self.label = f"{player_name}'s ITEMS" if player_name is not None else "TMP ITEMS"
 
     def watch_items(self, _: list[ItemCount]) -> None:
         if self.selected_index >= len(self.items):
             self.selected_index = max(0, len(self.items) - 1)
-        self.refresh()
+        if self.items:
+            self.styles.width = max(len(item.name) for item in self.items) + 10
+            self.styles.height = len(self.items) + 2
+        self.refresh(layout=True)
+
+    def watch_player_name(self, name: str | None) -> None:
+        self.label = f"{name}'s ITEMS" if name is not None else "TMP ITEMS"
+        if self.is_mounted:
+            self.border_title = self.label
 
     def watch_selected_index(self, _: int) -> None:
         self.refresh()
