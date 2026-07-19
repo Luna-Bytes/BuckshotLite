@@ -7,8 +7,7 @@ from textual.binding import Binding
 from textual.screen import Screen
 from textual.widgets import Footer
 
-from classes.Enums import Game, ItemCount, ItemType, TurnEvents, GameEnd, NewRound, NewShells, ItemGained, \
-    KnownShells, ShellKnowledge, KnowledgeType
+from classes.Enums import Game, ItemCount, ItemType, TurnEvents, GameEnd, NewRound, NewShells, ItemGained
 from classes.GameManager import GameManager
 from classes.Item import Handcuffs, Saw, Cigarette, MagnifyingGlass, Beer
 from classes.Shotgun import ShellCount
@@ -72,57 +71,15 @@ class GameScreen(Screen):
         )
     ]
 
-    tmp_shells: list[KnownShells] = [
-        KnownShells(
-            type= ShellKnowledge.BLANK,
-            known_by=KnowledgeType.FIRED,
-            inverted=False
-        ),
-        KnownShells(
-            type=ShellKnowledge.LIVE,
-            known_by=KnowledgeType.FIRED,
-            inverted=False
-        ),
-        KnownShells(
-            type=ShellKnowledge.LIVE,
-            known_by=KnowledgeType.NONE,
-            inverted=True
-        ),
-        KnownShells(
-            type=ShellKnowledge.UNKNOWN,
-            known_by=KnowledgeType.NONE,
-            inverted=False
-        ),
-        KnownShells(
-            type=ShellKnowledge.LIVE,
-            known_by=KnowledgeType.TELEFON,
-            inverted=False
-        ),
-        KnownShells(
-            type=ShellKnowledge.UNKNOWN,
-            known_by=KnowledgeType.NONE,
-            inverted=False
-        ),
-        KnownShells(
-            type=ShellKnowledge.UNKNOWN,
-            known_by=KnowledgeType.NONE,
-            inverted=False
-        ),
-        KnownShells(
-            type=ShellKnowledge.UNKNOWN,
-            known_by=KnowledgeType.NONE,
-            inverted=False
-        )
-    ]
-
     game: GameManager = None
 
     def __init__(self) -> None:
         super().__init__()
         self.game_health = None
+        self.shell_display = None
+        self.game_setup: Game = None
         self.round_display = None
         self.round: int = 0
-        self.game_setup: Game = None
         self.total_shells = ShellCount(0,0)
         self.remaining_shells = ShellCount(0,0)
 
@@ -130,7 +87,8 @@ class GameScreen(Screen):
         self.game_health = GameHealth()
         yield self.game_health
         yield ItemWidget(items=self.tmp_item_count, player_name="AUTUMN")
-        yield ShellDisplay(shells=self.tmp_shells, index=3)
+        self.shell_display = ShellDisplay()
+        yield self.shell_display
         self.round_display = RoundDisplay(total_shells=self.total_shells, remaining_shells=self.remaining_shells)
         yield self.round_display
         yield Footer()
@@ -143,6 +101,8 @@ class GameScreen(Screen):
         self.round_display.remaining_shells = self.remaining_shells
         self.round_display.round_index = self.round
         self.game_health.health = self.game.get_player_health() if self.game is not None else [("PLAYER", 2),("DEALER", 2)]
+        self.shell_display.shells = self.game.players[0].shells
+        self.shell_display.index = self.game.players[0].shell_index
 
     def action_shoot(self) -> None:
         self.target_select()
