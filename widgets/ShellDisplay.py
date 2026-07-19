@@ -20,15 +20,28 @@ class ShellDisplay(Widget, can_focus=False):
     }
     """
 
-    index = reactive(0, layout=True)
+    index: reactive[int] = reactive(0, layout=True)
+    shells: reactive[list[ShellKnowledge]] = reactive([
+        KnownShells(
+            type= ShellKnowledge.BLANK,
+            known_by=KnowledgeType.FIRED,
+            inverted=False
+        ) for _ in range(3)
+    ], layout=True)
 
     def __init__(
         self,
         *,
-        shells: list[KnownShells],
+        shells: list[KnownShells]|None = None,
         index: int = 0,
         **kwargs,
     ) -> None:
+        if shells is None:
+            shells = [KnownShells(
+            type= ShellKnowledge.BLANK,
+            known_by=KnowledgeType.FIRED,
+            inverted=False
+        ) for _ in range(3)]
         super().__init__(**kwargs)
         self.shells = shells
         self.index = index
