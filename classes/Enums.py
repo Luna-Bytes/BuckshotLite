@@ -95,10 +95,26 @@ class ItemGained:
     type: ItemType
     success: bool
 
+@dataclass
 class ItemUsed:
     type: ItemType
+    success: bool
 
-TurnEvents = Union[GameEnd, NewRound, NewShells, ItemGained]
+@dataclass
+class ShotEvent:
+    was_live: bool
+    target: Target
+
+class NoEvent:
+    pass
+
+class NextPlayer:
+    pass
+
+class Skipped:
+    pass
+
+TurnEvents = Union[NoEvent, GameEnd, NewRound, NewShells, ItemGained, ShotEvent, NextPlayer, Skipped]
 
 @dataclass
 class ItemCount:

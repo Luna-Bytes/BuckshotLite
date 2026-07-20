@@ -1,6 +1,7 @@
 import random
 
-from classes.Enums import GameState, ItemType, Target, Action, ShootAction, Game, GameMode, TurnEvents, NewRound
+from classes.Enums import GameState, ItemType, Target, Action, ShootAction, Game, GameMode, TurnEvents, NewRound, \
+    ShotEvent, ItemUseAction, NoEvent, Skipped
 from classes.ItemManager import ItemManager
 from classes.Player import Player, Human, AI
 from classes.RoundManager import RoundManager
@@ -32,6 +33,93 @@ class GameManager:
 
         return self.next_round()
 
+    def player_turn(self, action: Action) -> list[TurnEvents]:
+        events: list[TurnEvents] = []
+        still_going = True
+
+        if self.currentPlayer == 0:
+            player = self.players[0]
+
+            if player.skip_next_turn:
+                player.skip_next_turn = False
+                events.append(Skipped())
+                still_going = False
+            else:
+                player.skipped_last_turn = False
+
+            if type(action) is ShootAction and still_going:
+                shot = self.shotgun.shot(player, True if action.target == Target.SELF else False)
+                events.append(ShotEvent(shot, action.target))
+                for pl in self.players:
+                    pl.shoot_shell(shot)
+                if shot or action.target == Target.OTHER:
+                    still_going = False
+
+            if type(action) is ItemUseAction and still_going:
+                events.append(self.player_items[0].use_item(action.item, self.players[0], self.shotgun))
+
+            if not still_going:
+                self.currentPlayer = (self.currentPlayer + 1) % len(self.players)
+
+            self.update_state()
+
+            if self.state == GameState.NEXT_ROUND:
+                events.extend(self.next_round())
+            elif self.state == GameState.NEXT_SHELLS:
+                events.extend(self.next_loadout())
+
+
+    def do_turn(self):
+        def use_item(_item: ItemType):
+            for index, iitem in enumerate(player.items.get_items()):
+                if _item == iitem.type:
+                    player.items.use_item(index, player, self.shotgun)
+                    return
+
+        still_going: bool = True
+        player = self.players[self.currentPlayer]
+        print(player.name + "'s TURN:")
+
+        while still_going and self.state == GameState.CONTINUE:
+            action: Action = player.do_turn(self.shotgun.remainingShells, self.shotgun.remainingTypes, player.items.get_items())
+
+            if type(action) is ShootAction:
+                was_live = player.shot(self.shotgun, True if action.target == Target.SELF else False)
+
+                if action.target == Target.OTHER or was_live:
+                    still_going = False
+
+                print(player.name + " shot a " + ("live" if was_live else "blank") + " Shell at " + (
+                    "themselves" if action.target == Target.SELF else player.otherPlayer.name))
+            else:
+                item = action.item
+                use_item(item)
+
+            self.update_state()
+
+
+    def run(self):
+        self.rounds.load_default_rounds()
+        self.next_round()
+
+        while self.state == GameState.CONTINUE:
+            self.print_info()
+            self.next_player()
+            self.currentPlayer = (self.currentPlayer + 1) % len(self.players)
+            if self.state == GameState.NEXT_ROUND:
+                self.next_round()
+            if self.state == GameState.NEXT_SHELLS:
+                self.next_loadout()
+
+    def next_player(self):
+        player = self.players[self.currentPlayer]
+
+        if player.skip_next_turn:
+            player.skip_next_turn = False
+            print(player.name + "'s turn got skipped by handcuffs")
+        else:
+            player.skipped_last_turn = False
+            self.do_turn()
 
     def next_round(self):
         events: list[TurnEvents] = []
@@ -72,19 +160,6 @@ class GameManager:
     def get_player_health(self) -> list[tuple[str, int]]:
         return [(player.name, player.health) for player in self.players]
 
-    def run(self):
-        self.rounds.load_default_rounds()
-        self.next_round()
-
-        while self.state == GameState.CONTINUE:
-            self.print_info()
-            self.next_player()
-            self.currentPlayer = (self.currentPlayer + 1) % len(self.players)
-            if self.state == GameState.NEXT_ROUND:
-                self.next_round()
-            if self.state == GameState.NEXT_SHELLS:
-                self.next_loadout()
-
     def turn_events(self) -> list[TurnEvents]:
         pass
 
@@ -97,34 +172,6 @@ class GameManager:
         for player in self.players:
             result.append((player.name, player.health))
         return result
-
-    def do_turn(self):
-        def use_item(_item: ItemType):
-            for index, iitem in enumerate(player.items.get_items()):
-                if _item == iitem.type:
-                    player.items.use_item(index, player, self.shotgun)
-                    return
-
-        still_going: bool = True
-        player = self.players[self.currentPlayer]
-        print(player.name + "'s TURN:")
-
-        while still_going and self.state == GameState.CONTINUE:
-            action: Action = player.do_turn(self.shotgun.remainingShells, self.shotgun.remainingTypes, player.items.get_items())
-
-            if type(action) is ShootAction:
-                was_live = player.shot(self.shotgun, True if action.target == Target.SELF else False)
-
-                if action.target == Target.OTHER or was_live:
-                    still_going = False
-
-                print(player.name + " shot a " + ("live" if was_live else "blank") + " Shell at " + (
-                    "themselves" if action.target == Target.SELF else player.otherPlayer.name))
-            else:
-                item = action.item
-                use_item(item)
-
-            self.update_state()
 
     def update_state(self):
         for player in self.players:
@@ -139,13 +186,3 @@ class GameManager:
             return
         self.state = GameState.CONTINUE
         return
-
-    def next_player(self):
-        player = self.players[self.currentPlayer]
-
-        if player.skip_next_turn:
-            player.skip_next_turn = False
-            print(player.name + "'s turn got skipped by handcuffs")
-        else:
-            player.skipped_last_turn = False
-            self.do_turn()

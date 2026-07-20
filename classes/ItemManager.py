@@ -1,9 +1,9 @@
 from typing import TYPE_CHECKING
 
-from classes.Enums import ItemCount, ItemType, ItemGained
+from classes.Enums import ItemCount, ItemType, ItemGained, ItemUsed
 from classes.Shotgun import Shotgun
 
-from classes.Enums import itemtype_to_name
+from classes.Enums import itemtype_to_name, itemtype_to_item
 
 if TYPE_CHECKING:
     from classes.Player import Player
@@ -27,8 +27,13 @@ class ItemManager:
             self.items[item] = ItemCount(item, 0, itemtype_to_name(item))
 
     def use_item(self, item_type: ItemType, player: Player, shotgun: Shotgun):
-        self.items[item_type].count -= 1
-        self.amount_items -= 1
+        if self.items[item_type].count >= 1:
+            self.items[item_type].count -= 1
+            self.amount_items -= 1
+            itemtype_to_item(item_type).use(player, shotgun)
+            return ItemUsed(item_type, True)
+        else:
+            return ItemUsed(item_type, False)
 
     def get_items(self) -> list[ItemCount]:
         return [ self.items[item] for item in self.items]

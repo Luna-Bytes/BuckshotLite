@@ -7,7 +7,8 @@ from textual.binding import Binding
 from textual.screen import Screen
 from textual.widgets import Footer
 
-from classes.Enums import Game, ItemCount, ItemType, TurnEvents, GameEnd, NewRound, NewShells, ItemGained
+from classes.Enums import Game, ItemCount, ItemType, TurnEvents, GameEnd, NewRound, NewShells, ItemGained, ShootAction, \
+    Target
 from classes.GameManager import GameManager
 from classes.Item import Handcuffs, Saw, Cigarette, MagnifyingGlass, Beer
 from classes.Shotgun import ShellCount
@@ -121,7 +122,9 @@ class GameScreen(Screen):
 
     @work(exclusive=True)
     async def target_select(self) -> None:
-        await modal_wait(self.app, PlayerSelectModal())
+        target = await modal_wait(self.app, PlayerSelectModal())
+        if target is not Target.NONE:
+            self.handel_events(self.game.player_turn(ShootAction(target=target)))
 
     @work(exclusive=True)
     async def handel_events(self, events: list[TurnEvents] | TurnEvents) -> None:
