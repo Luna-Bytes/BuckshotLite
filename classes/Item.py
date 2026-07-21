@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from classes.Enums import ItemType
+from classes.Enums import ItemType, ShellKnowledge, KnownShells, KnowledgeType
 from classes.Shotgun import Shotgun
 
 if TYPE_CHECKING:
@@ -55,8 +55,11 @@ class MagnifyingGlass(Item):
         self.type: ItemType = ItemType.MAGNIFYING_GLASS
 
     def use(self, player: Player, shotgun: Shotgun):
-        player.update_shell()
-        print("Current Shell is " + ("live" if shotgun.loaded_shells[0].isLive else "blank"))
+        player.update_shell(0, KnownShells(
+            type=ShellKnowledge.LIVE if shotgun.loaded_shells[0] else ShellKnowledge.BLANK,
+            known_by=KnowledgeType.MAGNIFYING
+        , inverted=shotgun.loaded_shells[0].isInverted
+        ))
 
 class Beer(Item):
     def __init__(self):
