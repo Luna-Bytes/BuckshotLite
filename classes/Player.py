@@ -6,7 +6,6 @@ from typing import TYPE_CHECKING
 
 from classes.Enums import Action, ShootAction, Target, ItemUseAction, ShellKnowledge, KnownShells, KnowledgeType
 from classes.Item import Item
-from classes.ItemManager import ItemManager
 
 if TYPE_CHECKING:
     from classes.Shotgun import Shotgun, ShellCount

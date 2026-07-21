@@ -92,30 +92,6 @@ class GameManager:
 
         return still_going, events
 
-
-    def run(self):
-        self.rounds.load_default_rounds()
-        self.next_round()
-
-        while self.state == GameState.CONTINUE:
-            self.print_info()
-            self.next_player()
-            self.currentPlayer = (self.currentPlayer + 1) % len(self.players)
-            if self.state == GameState.NEXT_ROUND:
-                self.next_round()
-            if self.state == GameState.NEXT_SHELLS:
-                self.next_loadout()
-
-    def next_player(self):
-        player = self.players[self.currentPlayer]
-
-        if player.skip_next_turn:
-            player.skip_next_turn = False
-            print(player.name + "'s turn got skipped by handcuffs")
-        else:
-            player.skipped_last_turn = False
-            self.do_turn()
-
     def next_round(self):
         events: list[TurnEvents] = []
         self.state = self.rounds.next_round()
@@ -157,10 +133,6 @@ class GameManager:
 
     def turn_events(self) -> list[TurnEvents]:
         pass
-
-    def print_info(self):
-        for player in self.players:
-            print(player.name + ": " + "⚡︎" * player.health)
 
     def get_health(self) -> list[tuple[str, int]]:
         result: list[tuple[str, int]] = []
