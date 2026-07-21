@@ -41,7 +41,7 @@ class RoundDisplay(Static, can_focus=False):
             live = Text(str(shells.live))
             live.stylize("red")
 
-            sep = Text("/")
+            sep = Text(":")
 
             blank = Text(str(shells.blank))
             blank.stylize("blue")

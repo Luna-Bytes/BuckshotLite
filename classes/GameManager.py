@@ -1,7 +1,7 @@
 import random
 
 from classes.Enums import GameState, ItemType, Target, Action, ShootAction, Game, GameMode, TurnEvents, NewRound, \
-    ShotEvent, ItemUseAction, NoEvent, Skipped
+    ShotEvent, ItemUseAction, NoEvent, Skipped, NextPlayer
 from classes.ItemManager import ItemManager
 from classes.Player import Player, Human, AI
 from classes.RoundManager import RoundManager
@@ -35,10 +35,11 @@ class GameManager:
 
     def player_turn(self, action: Action) -> list[TurnEvents]:
         events: list[TurnEvents] = []
-        still_going = True
+        waiting_for_next_action, player_action_done = False, False
 
-        if self.currentPlayer == 0:
-            player = self.players[0]
+        while not waiting_for_next_action:
+            still_going = True
+            player = self.players[self.currentPlayer]
 
             if player.skip_next_turn:
                 player.skip_next_turn = False
@@ -47,19 +48,22 @@ class GameManager:
             else:
                 player.skipped_last_turn = False
 
-            if type(action) is ShootAction and still_going:
-                shot = self.shotgun.shot(player, True if action.target == Target.SELF else False)
-                events.append(ShotEvent(shot, action.target))
-                for pl in self.players:
-                    pl.shoot_shell(shot)
-                if shot or action.target == Target.OTHER:
-                    still_going = False
-
-            if type(action) is ItemUseAction and still_going:
-                events.append(self.player_items[0].use_item(action.item, self.players[0], self.shotgun))
+            if type(player) is Human and still_going and not player_action_done:
+                new_still_going, new_events = self.do_action(action)
+                events.extend(new_events)
+                still_going = new_still_going
+                player_action_done = True
+            elif still_going and type(player) is AI:
+                action = player.do_turn(self.shotgun.remainingShells, self.shotgun.remainingTypes, self.player_items[self.currentPlayer].get_items())
+                new_still_going, new_events = self.do_action(action)
+                events.extend(new_events)
+                still_going = new_still_going
+            else:
+                waiting_for_next_action = True
 
             if not still_going:
                 self.currentPlayer = (self.currentPlayer + 1) % len(self.players)
+                events.append(NextPlayer())
 
             self.update_state()
 
@@ -68,34 +72,25 @@ class GameManager:
             elif self.state == GameState.NEXT_SHELLS:
                 events.extend(self.next_loadout())
 
+        return events
 
-    def do_turn(self):
-        def use_item(_item: ItemType):
-            for index, iitem in enumerate(player.items.get_items()):
-                if _item == iitem.type:
-                    player.items.use_item(index, player, self.shotgun)
-                    return
-
-        still_going: bool = True
+    def do_action(self, action: Action) -> tuple[bool,list[TurnEvents]]:
+        still_going = True
+        events: list[TurnEvents] = []
         player = self.players[self.currentPlayer]
-        print(player.name + "'s TURN:")
 
-        while still_going and self.state == GameState.CONTINUE:
-            action: Action = player.do_turn(self.shotgun.remainingShells, self.shotgun.remainingTypes, player.items.get_items())
+        if type(action) is ShootAction:
+            shot = self.shotgun.shot(player, True if action.target == Target.SELF else False)
+            events.append(ShotEvent(shot, action.target))
+            for pl in self.players:
+                pl.shoot_shell(shot)
+            if shot or action.target == Target.OTHER:
+                still_going = False
 
-            if type(action) is ShootAction:
-                was_live = player.shot(self.shotgun, True if action.target == Target.SELF else False)
+        if type(action) is ItemUseAction and still_going:
+            events.append(self.player_items[self.currentPlayer].use_item(action.item, player, self.shotgun))
 
-                if action.target == Target.OTHER or was_live:
-                    still_going = False
-
-                print(player.name + " shot a " + ("live" if was_live else "blank") + " Shell at " + (
-                    "themselves" if action.target == Target.SELF else player.otherPlayer.name))
-            else:
-                item = action.item
-                use_item(item)
-
-            self.update_state()
+        return still_going, events
 
 
     def run(self):
